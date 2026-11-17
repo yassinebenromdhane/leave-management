@@ -1,6 +1,7 @@
 import { addIsoDays, isoWeekday } from "@leave/shared";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ApiError } from "@/common/api/http";
 import { queryKeys } from "@/common/api/keys";
 import { portalApi } from "@/common/api/portal";
 import { todayIso } from "@/common/lib/date";
@@ -36,6 +37,30 @@ describe("Home", () => {
     expect(within(cards[0]!).getByRole("button", { name: "Withdraw" })).toBeTruthy();
     expect(within(cards[1]!).queryByRole("button", { name: "Withdraw" })).toBeNull();
     expect(within(cards[1]!).getByText("Added by HR")).toBeTruthy(); // marker on the HR-added leave
+  });
+
+  it("Withdraw acts at once (no confirmation) and its Undo asks the server to restore the request", async () => {
+    const withdraw = vi.spyOn(portalApi, "withdraw").mockResolvedValue({ ...pending, status: "cancelled" } as never);
+    const restore = vi.spyOn(portalApi, "restore").mockResolvedValue(pending as never);
+    renderPortal(<HomePage />, seeded());
+
+    fireEvent.click(screen.getByRole("button", { name: "Withdraw" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    await waitFor(() => expect(withdraw).toHaveBeenCalledWith("p1"));
+    expect(await screen.findByText("Request withdrawn")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    await waitFor(() => expect(restore).toHaveBeenCalledWith("p1"));
+    expect(await screen.findByText("Request sent to HR again")).toBeTruthy();
+  });
+
+  it("Undo too late shows the server's reason", async () => {
+    vi.spyOn(portalApi, "withdraw").mockResolvedValue({ ...pending, status: "cancelled" } as never);
+    vi.spyOn(portalApi, "restore").mockRejectedValue(new ApiError("portal.errors.undoExpired", 409));
+    renderPortal(<HomePage />, seeded());
+    fireEvent.click(screen.getByRole("button", { name: "Withdraw" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Undo" }));
+    expect(await screen.findByText("Too late to undo. Send a new request instead.")).toBeTruthy();
   });
 
   it("shows the balance card with available as the main figure", () => {

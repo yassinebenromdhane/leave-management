@@ -20,7 +20,15 @@ export const PORTAL_ERRORS = {
   typeInactive: "leave.errors.typeInactive",
   /** /me/team range longer than PORTAL_TEAM_MAX_DAYS. */
   rangeTooLong: "portal.errors.rangeTooLong",
+  /** Undo of a withdraw arrived after PORTAL_UNDO_WINDOW_MS, or the leave was not withdrawn. */
+  undoExpired: "portal.errors.undoExpired",
 } as const;
+
+/**
+ * How long after a withdraw the employee may undo it (restore the request to Pending). The toast
+ * shows Undo for 6 s; the server allows a margin for a slow network, and no more.
+ */
+export const PORTAL_UNDO_WINDOW_MS = 60_000;
 
 /** Longest window the Team view may ask for in one call. */
 export const PORTAL_TEAM_MAX_DAYS = 31;

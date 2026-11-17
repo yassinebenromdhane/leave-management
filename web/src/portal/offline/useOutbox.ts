@@ -26,10 +26,12 @@ export function useOutboxFlush(userId: string | null | undefined): void {
   useEffect(() => {
     if (!userId) return;
     outbox.setOwner(userId);
+    void outbox.ready(); // load kept documents now, so a lost one is flagged even while offline
     const flush = async () => {
       if (flushing || !navigator.onLine) return;
       flushing = true;
       try {
+        await outbox.ready(); // documents kept from before a reload, so none is sent without its file
         for (const item of outbox.all()) {
           if (item.ownerUserId !== userId) continue; // defence in depth
 

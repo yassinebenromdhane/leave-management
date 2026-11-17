@@ -60,12 +60,10 @@ export type DecisionMailInput = {
   to: string;
   name: string;
   status: "approved" | "rejected";
-  leaveTypeName: string;
   startDate: string; // ISO
   endDate: string; // ISO
   startHalf: "full" | "am" | "pm";
   endHalf: "full" | "am" | "pm";
-  rejectReason: string | null;
   url: string;
 };
 
@@ -82,8 +80,10 @@ function periodText(lang: MailLang, p: DecisionMailInput): string {
 }
 
 /**
- * Approved / rejected notice. Contains the dates, the leave type, the decision and the reject
- * reason only: never the employee's note, attachments or anything medical.
+ * Approved / rejected notice: the dates and the decision only. The leave type (it can be
+ * "Sick leave") and the operator's free-text reject reason stay behind the portal login, since
+ * the mailbox may be shared or read on a lock screen (verify-spec item 1). Never the employee's
+ * note, attachments or anything medical.
  */
 export function decisionEmail(lang: MailLang, p: DecisionMailInput): MailMessage {
   const period = periodText(lang, p);
@@ -94,8 +94,8 @@ export function decisionEmail(lang: MailLang, p: DecisionMailInput): MailMessage
           subject: approved ? "Your leave request was approved" : "Your leave request was declined",
           lines: [
             `Hello ${p.name},`,
-            `Your request for ${p.leaveTypeName} ${period} was ${approved ? "approved" : "declined"}.`,
-            ...(!approved && p.rejectReason ? [`Reason: ${p.rejectReason}`] : []),
+            `Your leave request ${period} was ${approved ? "approved" : "declined"}.`,
+            "Sign in to see the details.",
           ],
           cta: "Open my leave",
         }
@@ -103,8 +103,8 @@ export function decisionEmail(lang: MailLang, p: DecisionMailInput): MailMessage
           subject: approved ? "Votre demande de congé est acceptée" : "Votre demande de congé est refusée",
           lines: [
             `Bonjour ${p.name},`,
-            `Votre demande (${p.leaveTypeName}) ${period} a été ${approved ? "acceptée" : "refusée"}.`,
-            ...(!approved && p.rejectReason ? [`Motif : ${p.rejectReason}`] : []),
+            `Votre demande de congé ${period} a été ${approved ? "acceptée" : "refusée"}.`,
+            "Connectez-vous pour voir le détail.",
           ],
           cta: "Voir mes congés",
         };

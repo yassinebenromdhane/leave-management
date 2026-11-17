@@ -5,6 +5,7 @@ import { portalApi } from "@/common/api/portal";
 import type * as PortalModule from "@/common/api/portal";
 import { todayIso } from "@/common/lib/date";
 import { SICK, TRAINING, reference, renderPortal } from "@/test/portalFixtures";
+import type { FileStore } from "./offline/fileStore";
 import { outbox } from "./offline/outbox";
 import { useOutboxFlush } from "./offline/useOutbox";
 import RequestSheet from "./RequestSheet";
@@ -157,6 +158,65 @@ describe("offline submit", () => {
 
   it("nothing can be queued without a signed-in owner", () => {
     expect(() => outbox.enqueue({} as never, "x", null)).toThrow();
+  });
+
+  describe("queued document survives a page reload (verify-spec item 2)", () => {
+    /** Stands in for IndexedDB: survives simulateReload(), like the real one survives a reload. */
+    const memoryStore = (persist = true): FileStore & { data: Map<string, File> } => {
+      const data = new Map<string, File>();
+      return {
+        data,
+        put: async (id, f) => void (persist && data.set(id, f)),
+        get: async (id) => data.get(id) ?? null,
+        delete: async (id) => void data.delete(id),
+        keys: async () => [...data.keys()],
+      };
+    };
+    const certificate = () => new File([new Uint8Array([37, 80, 68, 70])], "certificat.pdf", { type: "application/pdf" });
+    const queueWithFile = (userId: string) => {
+      outbox.setOwner(userId);
+      return outbox.enqueue({ leaveTypeId: "t", startDate: monday, endDate: tuesday, startHalf: "full", endHalf: "full" } as never, "Sick leave", certificate());
+    };
+
+    it("sends the request WITH its document after a reload, then deletes the stored copy", async () => {
+      const store = memoryStore();
+      outbox.useFileStore(store);
+      setOnline(false);
+      const item = queueWithFile("user-a");
+      await waitFor(() => expect(store.data.has(item.id)).toBe(true));
+
+      outbox.simulateReload();
+      expect(outbox.fileFor(item.id)).toBeNull(); // memory is gone…
+      setOnline(true);
+      renderPortal(<Flusher userId="user-a" />);
+      await waitFor(() => expect(portalApi.submit).toHaveBeenCalledTimes(1));
+      const sent = vi.mocked(portalApi.submit).mock.calls[0]![1] as File; // …but the file came back
+      expect(sent.name).toBe("certificat.pdf");
+      expect(sent.type).toBe("application/pdf");
+      await waitFor(() => expect(store.data.size).toBe(0));
+    });
+
+    it("another person signing in deletes the stored document too", async () => {
+      const store = memoryStore();
+      outbox.useFileStore(store);
+      setOnline(false);
+      const item = queueWithFile("user-a");
+      await waitFor(() => expect(store.data.has(item.id)).toBe(true));
+      outbox.setOwner("user-b");
+      await waitFor(() => expect(store.data.size).toBe(0));
+    });
+
+    it("when the browser cannot keep files, the request stays queued and asks for the document", async () => {
+      outbox.useFileStore(memoryStore(false));
+      setOnline(false);
+      const item = queueWithFile("user-a");
+      outbox.simulateReload();
+      outbox.setOwner("user-a");
+      expect(outbox.fileLost(item)).toBe(false); // not known yet
+      await outbox.ready();
+      expect(outbox.all()).toHaveLength(1);
+      expect(outbox.fileLost(outbox.all()[0]!)).toBe(true);
+    });
   });
 
   it("queues the payload while offline and sends it on the online event", async () => {

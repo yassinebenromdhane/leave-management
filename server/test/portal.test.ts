@@ -1,7 +1,7 @@
 // Step 5 verification: employee portal API (spec 1.7, 4.3). Isolation (session-scoped queries,
 // someone else's ids → 404), the "Away" projection, the portal submit matrix, withdraw and its
 // race against an operator decision, decision notifications and emails.
-import { portalLeaveRowSchema, portalTeamResponseSchema } from "@leave/shared";
+import { PORTAL_UNDO_WINDOW_MS, portalLeaveRowSchema, portalTeamResponseSchema } from "@leave/shared";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { resetRateLimits } from "../src/auth/rateLimit";
@@ -302,6 +302,54 @@ describe("withdraw", () => {
     expect(res.status).toBe(409);
   });
 
+  it("Undo of a withdraw puts the request back to Pending (audit + HR notified), HR can then decide it", async () => {
+    const row = await submitOk(a);
+    expect((await a.post(`/api/me/leaves/${row.id}/withdraw`)).status).toBe(200);
+    const res = await a.post(`/api/me/leaves/${row.id}/restore`);
+    expect(res.status).toBe(200);
+    expect((await json<Row>(res)).status).toBe("pending");
+
+    const [stored] = await db.select().from(leaveRequest).where(eq(leaveRequest.id, row.id));
+    expect(stored).toMatchObject({ status: "pending", withdrawnAt: null, workingDays: "5.0" });
+    const audits = await db.select().from(auditLog).where(eq(auditLog.entityId, row.id));
+    expect(audits.map((x) => x.action)).toContain("leave.restoreWithdrawn");
+    const notes = await db.select().from(notification).where(eq(notification.leaveRequestId, row.id));
+    expect(notes.map((n) => n.kind).sort()).toEqual(["submitted", "submitted", "withdrawn"]);
+
+    expect((await op.post(`/api/operator/leaves/${row.id}/status`, { status: "approved" })).status).toBe(200);
+    // Once decided, a second Undo is refused.
+    const again = await a.post(`/api/me/leaves/${row.id}/restore`);
+    expect(again.status).toBe(409);
+    expect((await json<ErrorBody>(again)).code).toBe("portal.errors.undoExpired");
+  });
+
+  it("Undo is refused after the window, on a request never withdrawn, and on someone else's leave", async () => {
+    const row = await submitOk(a);
+    expect((await a.post(`/api/me/leaves/${row.id}/restore`)).status).toBe(409); // still pending
+
+    expect((await a.post(`/api/me/leaves/${row.id}/withdraw`)).status).toBe(200);
+    expect((await b.post(`/api/me/leaves/${row.id}/restore`)).status).toBe(404);
+
+    await db
+      .update(leaveRequest)
+      .set({ withdrawnAt: new Date(Date.now() - PORTAL_UNDO_WINDOW_MS - 1_000) })
+      .where(eq(leaveRequest.id, row.id));
+    const late = await a.post(`/api/me/leaves/${row.id}/restore`);
+    expect(late.status).toBe(409);
+    expect((await json<ErrorBody>(late)).code).toBe("portal.errors.undoExpired");
+  });
+
+  it("Undo re-runs the blocking checks: a leave submitted in between on the same days blocks it", async () => {
+    const row = await submitOk(a);
+    expect((await a.post(`/api/me/leaves/${row.id}/withdraw`)).status).toBe(200);
+    await submitOk(a); // same week again
+    const res = await a.post(`/api/me/leaves/${row.id}/restore`);
+    expect(res.status).toBe(422);
+    expect((await json<ErrorBody>(res)).code).toBe("leave.errors.blocked");
+    const [stored] = await db.select().from(leaveRequest).where(eq(leaveRequest.id, row.id));
+    expect(stored!.status).toBe("cancelled");
+  });
+
   it("withdraw vs approve in parallel: exactly one wins, the other gets 409", async () => {
     const spans = [
       { startDate: "2027-04-05", endDate: "2027-04-06" },
@@ -362,12 +410,21 @@ describe("decisions: notifications and emails (sync rules 3-4)", () => {
     expect(testOutbox[0]!.text).not.toContain("private note");
   });
 
-  it("reject email carries the reason", async () => {
+  it("decision emails never carry the leave type or the reject reason (they stay behind the login)", async () => {
     const row = await submitOk(a);
     await op.post(`/api/operator/leaves/${row.id}/status`, { status: "rejected", reason: "Inventory week" });
     await settleBackgroundJobs();
     expect(testOutbox).toHaveLength(1);
-    expect(testOutbox[0]!.text).toContain("Reason: Inventory week");
+    const mail = testOutbox[0]!;
+    expect(mail.subject).toBe("Your leave request was declined");
+    for (const body of [mail.text, mail.html]) {
+      expect(body).not.toContain("Inventory week");
+      expect(body).not.toContain("Paid leave");
+      expect(body).toContain("Sign in to see the details.");
+    }
+    // The reason is still shown to the employee in the portal.
+    const mine = (await json(await a.get("/api/me/leaves"))) as Array<{ id: string; rejectReason: string | null }>;
+    expect(mine.find((l) => l.id === row.id)?.rejectReason).toBe("Inventory week");
   });
 
   it("no email for a code-only employee (in-app notification only)", async () => {

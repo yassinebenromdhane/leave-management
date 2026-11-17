@@ -106,8 +106,6 @@
     "addedByHr": "Added by HR",
     "changedByHr": "Changed by HR",
     "withdraw": "Withdraw",
-    "withdrawTitle": "Withdraw this request?",
-    "withdrawMessage": "HR will no longer see it. You can send a new request any time.",
     "contactHr": "To change an approved leave, contact HR.",
     "balances": "Your balances",
     "openLedger": "{{type}}: see balance history",
@@ -152,7 +150,7 @@
       "sending": "Sending…",
       "sent": "{{type}} request sent",
       "discard": "Cancel this request",
-      "fileLost": "The document was not kept after the page reloaded. Attach it again with a new request if it is needed."
+      "fileLost": "This browser could not keep the document. Attach it again with a new request if it is needed."
     },
     "request": {
       "title": "Request leave",
@@ -166,14 +164,16 @@
     "toast": {
       "sent": "Request sent",
       "withdrawn": "Request withdrawn",
+      "restored": "Request sent to HR again",
       "queued": "You are offline. We will send your request when you are back online.",
-      "queuedFile": "You are offline. We will send your request when you are back online. Attach the document again if the page reloads."
+      "queuedFile": "You are offline. We will send your request and its document when you are back online."
     },
     "errors": {
       "acknowledgeNegative": "Tick the box to confirm your balance goes below zero.",
       "alreadyDecided": "HR already decided on this request.",
       "notPending": "This request is no longer pending.",
-      "rangeTooLong": "That period is too long."
+      "rangeTooLong": "That period is too long.",
+      "undoExpired": "Too late to undo. Send a new request instead."
     }
   },
   "nav": {

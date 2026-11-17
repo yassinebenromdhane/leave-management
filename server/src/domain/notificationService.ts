@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { codeOnlyEmail } from "../auth/accounts";
 import { companyMailContext } from "../auth/mailContext";
 import { db, type Tx } from "../db/client";
-import { employee, leaveRequest, leaveType, notification } from "../db/schema";
+import { employee, leaveRequest, notification } from "../db/schema";
 import { env } from "../env";
 import { runInBackground } from "../services/backgroundJobs";
 import { sendMail } from "../services/email";
@@ -50,8 +50,6 @@ export async function sendDecisionEmail(leaveRequestId: string): Promise<void> {
       endDate: leaveRequest.endDate,
       startHalf: leaveRequest.startHalf,
       endHalf: leaveRequest.endHalf,
-      rejectReason: leaveRequest.rejectReason,
-      leaveTypeName: leaveType.name,
       name: employee.fullName,
       email: employee.email,
       portalAccess: employee.portalAccess,
@@ -59,7 +57,6 @@ export async function sendDecisionEmail(leaveRequestId: string): Promise<void> {
     })
     .from(leaveRequest)
     .innerJoin(employee, eq(employee.id, leaveRequest.employeeId))
-    .innerJoin(leaveType, eq(leaveType.id, leaveRequest.leaveTypeId))
     .where(eq(leaveRequest.id, leaveRequestId));
   if (!row || (row.status !== "approved" && row.status !== "rejected")) return;
   if (!row.portalAccess || row.employeeStatus !== "active" || !isRealEmail(row.email)) return;
@@ -69,12 +66,10 @@ export async function sendDecisionEmail(leaveRequestId: string): Promise<void> {
     to: row.email,
     name: row.name,
     status: row.status,
-    leaveTypeName: row.leaveTypeName,
     startDate: row.startDate,
     endDate: row.endDate,
     startHalf: row.startHalf,
     endHalf: row.endHalf,
-    rejectReason: row.rejectReason,
     url: `${env.APP_URL}/me`,
   });
 

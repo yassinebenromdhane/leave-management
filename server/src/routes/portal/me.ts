@@ -26,6 +26,7 @@ import {
   listOwnLeaves,
   markNotificationRead,
   previewOwnLeave,
+  restoreWithdrawnLeave,
   submitLeave,
   withdrawLeave,
 } from "../../domain/portalService";
@@ -97,6 +98,10 @@ export const portalRoutes = new Hono<EmployeeEnv>()
   )
   .post("/leaves/:id/withdraw", validate("param", idParam), async (c) =>
     c.json(await withdrawLeave(portalScope(c), c.req.valid("param").id), 200),
+  )
+  // Undo of a withdraw, accepted for PORTAL_UNDO_WINDOW_MS only.
+  .post("/leaves/:id/restore", validate("param", idParam), async (c) =>
+    c.json(await restoreWithdrawnLeave(portalScope(c), c.req.valid("param").id), 200),
   )
   .get("/leaves/:id/attachments", validate("param", idParam), async (c) =>
     c.json(await listOwnAttachments(portalScope(c), c.req.valid("param").id), 200),

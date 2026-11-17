@@ -69,5 +69,7 @@ export const portalApi = {
   submit: (input: PortalLeaveSubmitInput, file?: File | null) =>
     unwrap(api.api.me.leaves.$post({ form: { data: JSON.stringify(input), ...(file ? { file } : {}) } })),
   withdraw: (id: string) => unwrap(api.api.me.leaves[":id"].withdraw.$post({ param: { id } })),
+  /** Undo of a withdraw: back to Pending (server allows it for PORTAL_UNDO_WINDOW_MS). */
+  restore: (id: string) => unwrap(api.api.me.leaves[":id"].restore.$post({ param: { id } })),
   markRead: (id: string) => unwrap(api.api.me.notifications[":id"].read.$post({ param: { id } })),
 };

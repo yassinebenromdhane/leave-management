@@ -1,5 +1,6 @@
-// Portal mutations: submit (queued when offline), withdraw (optimistic with rollback). Undo of a
-// submit is a server withdraw, never a cache revert (CLAUDE.md, frontend rules).
+// Portal mutations: submit (queued when offline), withdraw (optimistic with rollback). Undo is
+// always the inverse server action, never a cache revert (CLAUDE.md, frontend rules): Undo of a
+// submit is a withdraw, Undo of a withdraw is a restore.
 import type { PortalLeaveSubmitInput } from "@leave/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -17,7 +18,24 @@ export function usePortalActions() {
   const toast = useToast();
   const { t } = useTranslation();
 
-  /** Withdraw: the row leaves "Pending" at once; a refusal (409 already decided) rolls it back. */
+  /** Undo of a withdraw: the server puts the request back to Pending (or refuses with a reason). */
+  async function restore(id: string): Promise<boolean> {
+    try {
+      await portalApi.restore(id);
+      toast({ message: t("portal.toast.restored") });
+      return true;
+    } catch (err) {
+      toast({ message: errorMessage(t, err), tone: "error" });
+      return false;
+    } finally {
+      void refreshPortal(qc);
+    }
+  }
+
+  /**
+   * Withdraw, no confirmation (spec 2.3: only destructive actions confirm; this one has Undo). The
+   * row leaves "Pending" at once; a refusal (409 already decided) rolls it back.
+   */
   async function withdraw(id: string, announce = true): Promise<boolean> {
     await qc.cancelQueries({ queryKey: queryKeys.portal });
     const dash = qc.getQueryData<PortalDashboard>(queryKeys.portalDashboard);
@@ -26,7 +44,7 @@ export function usePortalActions() {
     qc.setQueryData<PortalLeaveItem[]>(queryKeys.portalLeaves, (rows) => rows?.map((l) => (l.id === id ? { ...l, status: "cancelled" as const } : l)));
     try {
       await portalApi.withdraw(id);
-      if (announce) toast({ message: t("portal.toast.withdrawn") });
+      if (announce) toast({ message: t("portal.toast.withdrawn"), onUndo: () => void restore(id) });
       return true;
     } catch (err) {
       qc.setQueryData(queryKeys.portalDashboard, dash);
@@ -61,5 +79,5 @@ export function usePortalActions() {
     }
   }
 
-  return { submit, withdraw };
+  return { submit, withdraw, restore };
 }

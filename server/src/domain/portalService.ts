@@ -4,6 +4,7 @@
 import {
   PORTAL_ERRORS,
   PORTAL_TEAM_MAX_DAYS,
+  PORTAL_UNDO_WINDOW_MS,
   addIsoDays,
   portalConflictsView,
   portalSubmitVerdict,
@@ -448,6 +449,70 @@ export async function withdrawLeave(scope: PortalScope, id: string): Promise<Por
     return loadOwnLeave(tx, scope, id);
   });
   publishLeaveEvent("leave.withdrawn", { id: row.id, employeeId: scope.employeeId });
+  return row;
+}
+
+/**
+ * Undo of a withdraw (spec 2.3: "everything else relies on Undo"). Only the employee's own request,
+ * only while it is still the withdrawn one (cancelled + withdrawn_at) and only within
+ * PORTAL_UNDO_WINDOW_MS. The blocking checks run again, since a new leave or a balance change may
+ * have happened in between; it goes back to Pending, so nothing is written to the ledger.
+ */
+export async function restoreWithdrawnLeave(scope: PortalScope, id: string): Promise<PortalLeave> {
+  const row = await db.transaction(async (tx) => {
+    await lockEmployee(tx, scope.employeeId);
+    const [before] = await tx
+      .select()
+      .from(leaveRequest)
+      .where(and(eq(leaveRequest.id, id), eq(leaveRequest.employeeId, scope.employeeId), isNull(leaveRequest.deletedAt)))
+      .for("update");
+    if (!before) throw notFound();
+    const withdrawnAt = before.withdrawnAt?.getTime();
+    if (before.status !== "cancelled" || withdrawnAt === undefined || Date.now() - withdrawnAt > PORTAL_UNDO_WINDOW_MS) {
+      throw new DomainError(PORTAL_ERRORS.undoExpired, 409);
+    }
+
+    const [{ count }] = (await tx
+      .select({ count: sql<number>`count(*)::int` })
+      .from(attachment)
+      .where(and(eq(attachment.leaveRequestId, id), isNull(attachment.deletedAt)))) as [{ count: number }];
+    const draft = {
+      employeeId: scope.employeeId,
+      leaveTypeId: before.leaveTypeId,
+      startDate: before.startDate,
+      endDate: before.endDate,
+      startHalf: before.startHalf,
+      endHalf: before.endHalf,
+    };
+    const check = await checkLeave(tx, draft, { context: "portal", excludeLeaveId: id, attachmentPresent: count > 0 });
+    if (!check.leaveType.isActive) throw new DomainError(PORTAL_ERRORS.typeInactive, 422);
+    // The employee already confirmed this request once; a negative balance stays a warning for HR.
+    const verdict = portalSubmitVerdict(check.conflicts, true);
+    if (!verdict.ok) rejectSubmit("leave.errors.blocked", portalConflictsView(check.conflicts, check.settings.teamVisibility));
+
+    const [after] = await tx
+      .update(leaveRequest)
+      .set({
+        status: "pending",
+        withdrawnAt: null,
+        workingDays: fromDays(check.dayCount.days),
+        hasWarning: check.conflicts.warnings.length > 0,
+        conflictResult: check.conflicts,
+      })
+      .where(eq(leaveRequest.id, id))
+      .returning();
+    await notifyOperator(tx, id, "submitted");
+    await writeAudit(tx, {
+      entity: "leave_request",
+      entityId: id,
+      action: "leave.restoreWithdrawn",
+      actor: scope.userId,
+      before: auditView(before),
+      after: auditView(after!),
+    });
+    return loadOwnLeave(tx, scope, id);
+  });
+  publishLeaveEvent("leave.submitted", { id: row.id, employeeId: scope.employeeId });
   return row;
 }
 

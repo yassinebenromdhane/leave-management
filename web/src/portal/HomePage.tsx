@@ -94,7 +94,7 @@ export default function HomePage() {
                   />
                 ))}
                 {d.pending.map((l) => (
-                  <LeaveCard key={l.id} leave={l} onWithdraw={withdraw.ask} />
+                  <LeaveCard key={l.id} leave={l} onWithdraw={withdraw} />
                 ))}
               </ul>
             </section>
@@ -128,7 +128,6 @@ export default function HomePage() {
       ) : null}
 
       {ledgerFor ? <LedgerSheet leaveTypeId={ledgerFor.id} typeName={ledgerFor.name} onClose={() => setLedgerFor(null)} /> : null}
-      {withdraw.dialog}
     </div>
   );
 }

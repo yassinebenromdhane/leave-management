@@ -106,8 +106,6 @@
     "addedByHr": "Ajouté par les RH",
     "changedByHr": "Modifié par les RH",
     "withdraw": "Retirer",
-    "withdrawTitle": "Retirer cette demande ?",
-    "withdrawMessage": "Les RH ne la verront plus. Vous pouvez en envoyer une nouvelle à tout moment.",
     "contactHr": "Pour modifier un congé approuvé, contactez les RH.",
     "balances": "Vos soldes",
     "openLedger": "{{type}} : voir l'historique du solde",
@@ -152,7 +150,7 @@
       "sending": "Envoi…",
       "sent": "Demande {{type}} envoyée",
       "discard": "Annuler cette demande",
-      "fileLost": "Le document n'a pas été conservé après le rechargement de la page. Joignez-le à une nouvelle demande si nécessaire."
+      "fileLost": "Ce navigateur n'a pas pu conserver le document. Joignez-le à une nouvelle demande si nécessaire."
     },
     "request": {
       "title": "Demander un congé",
@@ -166,14 +164,16 @@
     "toast": {
       "sent": "Demande envoyée",
       "withdrawn": "Demande retirée",
+      "restored": "Demande renvoyée aux RH",
       "queued": "Vous êtes hors ligne. Nous enverrons votre demande dès le retour de la connexion.",
-      "queuedFile": "Vous êtes hors ligne. Nous enverrons votre demande dès le retour de la connexion. Joignez à nouveau le document si la page se recharge."
+      "queuedFile": "Vous êtes hors ligne. Nous enverrons votre demande et son document dès le retour de la connexion."
     },
     "errors": {
       "acknowledgeNegative": "Cochez la case pour confirmer que votre solde passe sous zéro.",
       "alreadyDecided": "Les RH ont déjà statué sur cette demande.",
       "notPending": "Cette demande n'est plus en attente.",
-      "rangeTooLong": "Cette période est trop longue."
+      "rangeTooLong": "Cette période est trop longue.",
+      "undoExpired": "Trop tard pour annuler. Envoyez une nouvelle demande."
     }
   },
   "nav": {

@@ -45,12 +45,11 @@ export default function MyLeavesPage() {
           <h2 className="font-medium tabular-nums">{g.year}</h2>
           <ul className="space-y-2">
             {g.rows.map((l) => (
-              <LeaveCard key={l.id} leave={l} onWithdraw={withdraw.ask} approvedHint />
+              <LeaveCard key={l.id} leave={l} onWithdraw={withdraw} approvedHint />
             ))}
           </ul>
         </section>
       ))}
-      {withdraw.dialog}
     </div>
   );
 }
