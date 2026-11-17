@@ -1,0 +1,732 @@
+{
+  "app": {
+    "name": "Congés"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "close": "Fermer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "retry": "Réessayer",
+    "to": "au",
+    "undo": "Annuler l'action",
+    "dismiss": "Masquer",
+    "copy": "Copier",
+    "copied": "Copié",
+    "done": "Terminé",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue. Réessayez.",
+    "notFound": "Introuvable.",
+    "tooManyRequests": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "validation": "Certains champs sont invalides.",
+    "invalidDate": "Saisissez une date valide.",
+    "halfDayStep": "Les jours doivent être un multiple de 0,5.",
+    "required": "Ce champ est obligatoire.",
+    "nothingToUpdate": "Rien à mettre à jour."
+  },
+  "health": {
+    "ok": "API connectée",
+    "down": "API injoignable"
+  },
+  "auth": {
+    "operatorTitle": "Connexion RH",
+    "portalTitle": "Mon espace congés",
+    "identifier": "E-mail ou code salarié",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "showPassword": "Afficher",
+    "hidePassword": "Masquer",
+    "rememberMe": "Rester connecté",
+    "forgotPassword": "Mot de passe oublié ?",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "signedInAs": "Connecté : {{name}}",
+    "changePasswordTitle": "Choisissez votre mot de passe",
+    "changePasswordSubtitle": "Le mot de passe temporaire doit être remplacé avant de continuer.",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "passwordRule": "Au moins {{min}} caractères. Évitez les mots de passe courants.",
+    "savePassword": "Enregistrer le mot de passe",
+    "inviteTitle": "Bienvenue ! Choisissez votre mot de passe",
+    "resetTitle": "Nouveau mot de passe",
+    "passwordSetTitle": "Mot de passe enregistré",
+    "passwordSetSubtitle": "Vous pouvez maintenant vous connecter.",
+    "goToPortal": "Aller à mon espace",
+    "goToOperator": "Connexion RH",
+    "linkExpired": "Ce lien a expiré ou a déjà été utilisé. Demandez un nouveau lien aux RH.",
+    "forgotTitle": "Mot de passe oublié",
+    "forgotSubtitle": "Indiquez votre e-mail : vous recevrez un lien valable 30 minutes.",
+    "forgotSent": "Si un compte correspond à cet e-mail, un lien vient d'être envoyé. Vérifiez votre boîte de réception.",
+    "sendLink": "Envoyer le lien",
+    "noEmailHint": "Vous vous connectez avec un code salarié ? Demandez un nouveau mot de passe aux RH.",
+    "backToSignIn": "Retour à la connexion",
+    "errors": {
+      "invalidCredentials": "Identifiant ou mot de passe incorrect.",
+      "unauthenticated": "Votre session a expiré. Reconnectez-vous.",
+      "forbidden": "Accès refusé.",
+      "mustChangePassword": "Choisissez un nouveau mot de passe pour continuer.",
+      "commonPassword": "Ce mot de passe est trop courant. Choisissez-en un autre.",
+      "currentPasswordWrong": "Le mot de passe actuel est incorrect.",
+      "invalidToken": "Ce lien a expiré ou a déjà été utilisé.",
+      "passwordTooShort": "Au moins {{min}} caractères.",
+      "passwordTooLong": "Mot de passe trop long.",
+      "identifierRequired": "Indiquez votre e-mail ou votre code salarié.",
+      "passwordRequired": "Indiquez votre mot de passe.",
+      "emailInvalid": "Adresse e-mail invalide."
+    }
+  },
+  "operator": {
+    "title": "Espace RH",
+    "placeholder": "Le planning des absences arrive à l'étape 4."
+  },
+  "portal": {
+    "title": "Accès au portail",
+    "greeting": "Bonjour {{name}}",
+    "on": "Portail actif",
+    "off": "Portail inactif",
+    "invite": "Envoyer l'invitation",
+    "inviteSent": "Invitation envoyée à {{name}}",
+    "tempPassword": "Mot de passe temporaire",
+    "tempTitle": "Mot de passe temporaire de {{name}}",
+    "loginIdentifier": "Identifiant de connexion",
+    "shownOnce": "Affiché une seule fois. Transmettez-le au salarié ; il choisira un nouveau mot de passe à la première connexion.",
+    "enableAccess": "Activer l'accès au portail",
+    "disableAccess": "Désactiver l'accès au portail",
+    "enabled": "Accès au portail activé",
+    "disabled": "Accès au portail désactivé",
+    "signOutEverywhere": "Déconnecter partout",
+    "signedOutEverywhere": "Déconnecté sur tous les appareils",
+    "actionsFor": "Actions portail pour {{name}}",
+    "days_one": "{{formatted}} jour",
+    "days_other": "{{formatted}} jours",
+    "addedByHr": "Ajouté par les RH",
+    "changedByHr": "Modifié par les RH",
+    "withdraw": "Retirer",
+    "withdrawTitle": "Retirer cette demande ?",
+    "withdrawMessage": "Les RH ne la verront plus. Vous pouvez en envoyer une nouvelle à tout moment.",
+    "contactHr": "Pour modifier un congé approuvé, contactez les RH.",
+    "balances": "Vos soldes",
+    "openLedger": "{{type}} : voir l'historique du solde",
+    "pending": "Demandes en attente",
+    "upcoming": "À venir",
+    "holidays": "Prochains jours fériés",
+    "decision": {
+      "approved": "Bonne nouvelle ! Votre {{type}} ({{range}}) est approuvé.",
+      "rejected": "Votre {{type}} ({{range}}) n'a pas été approuvé."
+    },
+    "empty": {
+      "withBalance_one": "Vous avez {{formatted}} jour de congé payé. Touchez Demander un congé pour planifier le premier.",
+      "withBalance_other": "Vous avez {{formatted}} jours de congé payé. Touchez Demander un congé pour planifier le premier.",
+      "generic": "Rien de prévu pour l'instant. Touchez Demander un congé pour planifier le premier."
+    },
+    "myLeaves": {
+      "empty": "Vous n'avez encore demandé aucun congé."
+    },
+    "tabs": {
+      "label": "Sections du portail",
+      "home": "Accueil",
+      "leaves": "Mes congés",
+      "team": "Équipe"
+    },
+    "team": {
+      "strip": "{{count}} sur {{size}} en {{department}} absents : {{people}}",
+      "stripShort": "Absents : {{people}}",
+      "empty": "Personne n'est absent cette semaine ni la suivante.",
+      "thisWeek": "Cette semaine",
+      "nextWeek": "Semaine prochaine",
+      "nobody": "Personne n'est absent.",
+      "away": "Absent"
+    },
+    "settings": {
+      "title": "Réglages",
+      "language": "Langue",
+      "password": "Mot de passe",
+      "changePassword": "Changer mon mot de passe",
+      "passwordSaved": "Mot de passe modifié."
+    },
+    "outbox": {
+      "sending": "Envoi…",
+      "sent": "Demande {{type}} envoyée",
+      "discard": "Annuler cette demande",
+      "fileLost": "Le document n'a pas été conservé après le rechargement de la page. Joignez-le à une nouvelle demande si nécessaire."
+    },
+    "request": {
+      "title": "Demander un congé",
+      "cta": "Demander un congé",
+      "submit": "Envoyer la demande",
+      "certificateExpected": "Certificat attendu : vous pourrez l'envoyer plus tard.",
+      "acknowledge": "Je comprends que cela met mon solde en dessous de zéro.",
+      "addNote": "Ajouter une note",
+      "addDocument": "Ajouter un document ou une photo"
+    },
+    "toast": {
+      "sent": "Demande envoyée",
+      "withdrawn": "Demande retirée",
+      "queued": "Vous êtes hors ligne. Nous enverrons votre demande dès le retour de la connexion.",
+      "queuedFile": "Vous êtes hors ligne. Nous enverrons votre demande dès le retour de la connexion. Joignez à nouveau le document si la page se recharge."
+    },
+    "errors": {
+      "acknowledgeNegative": "Cochez la case pour confirmer que votre solde passe sous zéro.",
+      "alreadyDecided": "Les RH ont déjà statué sur cette demande.",
+      "notPending": "Cette demande n'est plus en attente.",
+      "rangeTooLong": "Cette période est trop longue."
+    }
+  },
+  "nav": {
+    "main": "Navigation principale",
+    "workspace": "Espace de travail",
+    "employees": "Salariés",
+    "reports": "Rapports",
+    "settings": "Paramètres",
+    "comingSoon": "Disponible à la prochaine étape."
+  },
+  "topbar": {
+    "search": "Rechercher une personne",
+    "logLeave": "Saisir un congé",
+    "switchLanguage": "Changer de langue",
+    "export": "Exporter",
+    "exportTitle": "Récapitulatif de paie de {{month}} ({{format}})"
+  },
+  "status": {
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "rejected": "Refusé",
+    "cancelled": "Annulé",
+    "change": "Statut : {{status}}. Changer le statut",
+    "menu": "Changer le statut"
+  },
+  "source": {
+    "operator": "Opérateur",
+    "portal": "Portail",
+    "portalMarker": "Via le portail"
+  },
+  "halfDay": {
+    "full": "Journée",
+    "am": "Matin",
+    "pm": "Après-midi",
+    "day": "Jour",
+    "first": "Premier jour",
+    "last": "Dernier jour"
+  },
+  "balance": {
+    "takenPending": "{{taken}} pris · {{pending}} en attente"
+  },
+  "datePicker": {
+    "presets": "Raccourcis de dates",
+    "from": "Du",
+    "to": "Au",
+    "calendar": "Calendrier",
+    "prevMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "preset": {
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
+      "thisWeek": "Cette semaine",
+      "nextWeek": "Semaine prochaine"
+    }
+  },
+  "attachments": {
+    "title": "Pièce jointe",
+    "drop": "Déposez, collez ou choisissez un PDF, JPG ou PNG (10 Mo max)",
+    "choose": "Choisir un fichier",
+    "remove": "Retirer la pièce jointe",
+    "required": "Ce type de congé exige un justificatif.",
+    "has": "Avec pièce jointe",
+    "errors": {
+      "tooLarge": "Le fichier dépasse 10 Mo.",
+      "type": "Seuls les fichiers PDF, JPG ou PNG sont acceptés.",
+      "empty": "Le fichier est vide.",
+      "missing": "Choisissez un fichier à envoyer."
+    },
+    "dropTouch": "Ajoutez un PDF ou une photo (10 Mo max)",
+    "takePhoto": "Prendre une photo"
+  },
+  "conflicts": {
+    "blocking": "Bloquant",
+    "warning": "Attention",
+    "openLeave": "Ouvrir ce congé",
+    "selfOverlap": "Chevauche {{type}} {{range}}",
+    "zeroDays": "Aucun jour ouvré dans cette période.",
+    "outsideEmployment": "Hors de la période d'emploi (à partir du {{hireDate}}).",
+    "outsideEmploymentEnded": "Hors de la période d'emploi ({{hireDate}} au {{endDate}}).",
+    "negativeBalance_one": "Dépasse le solde de {{formatted}} jour",
+    "negativeBalance_other": "Dépasse le solde de {{formatted}} jours",
+    "colleaguesOff": "{{count}} sur {{size}} en {{department}} déjà absents : {{people}}",
+    "attachmentMissing": "Un justificatif est requis et manquant."
+  },
+  "shortcuts": {
+    "title": "Raccourcis clavier",
+    "newLeave": "Saisir un congé",
+    "addEmployee": "Ajouter un salarié",
+    "search": "Aller à la recherche",
+    "approve": "Approuver le congé sélectionné",
+    "reject": "Refuser le congé sélectionné",
+    "leaveType": "Choisir le type de congé",
+    "save": "Enregistrer avec le statut par défaut",
+    "savePending": "Enregistrer en attente",
+    "close": "Fermer le panneau ou effacer",
+    "help": "Afficher cette aide",
+    "typingNote": "Les raccourcis à une touche sont désactivés pendant la saisie dans un champ.",
+    "today": "Aller à aujourd'hui",
+    "period": "Période précédente / suivante",
+    "zoom": "Zoom semaine / mois"
+  },
+  "workspace": {
+    "thisMonth": "Congés de {{month}}",
+    "empty": "Personne n'est absent. Appuyez sur C pour saisir un congé",
+    "noMatch": "Aucun résultat. Effacez les filtres",
+    "col": {
+      "employee": "Salarié",
+      "type": "Type",
+      "dates": "Dates",
+      "days": "Jours",
+      "status": "Statut",
+      "flags": "Indicateurs",
+      "source": "Origine"
+    },
+    "clearFilters": "Effacer les filtres",
+    "goEmployees": "Ajouter des employés"
+  },
+  "leave": {
+    "new": "Saisir un congé",
+    "edit": "Congé",
+    "employee": "Salarié",
+    "employeePlaceholder": "Tapez un nom…",
+    "recent": "Récents",
+    "noEmployee": "Aucun salarié trouvé.",
+    "changeEmployee": "Changer de salarié",
+    "type": "Type de congé",
+    "dates": "Dates",
+    "note": "Note (facultative)",
+    "pickDates": "Choisissez le premier et le dernier jour.",
+    "hasWarning": "Enregistré avec un avertissement",
+    "daysCounted_one": "{{formatted}} jour ouvré",
+    "daysCounted_other": "{{formatted}} jours ouvrés",
+    "excludedWeekend_one": "{{count}} week-end",
+    "excludedWeekend_other": "{{count}} week-ends",
+    "excludedHoliday_one": "{{count}} jour férié",
+    "excludedHoliday_other": "{{count}} jours fériés",
+    "excluded": "({{parts}} exclu(s))",
+    "balancePreview_one": "{{type}} : {{from}} → {{to}} jour",
+    "balancePreview_other": "{{type}} : {{from}} → {{to}} jours",
+    "saveAs": "Enregistrer : {{status}}",
+    "saveAsPending": "Enregistrer en attente",
+    "saveChanges": "Enregistrer les modifications",
+    "decision": "Décision",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "rejectReason": "Motif (facultatif)",
+    "confirmReject": "Refuser",
+    "rejectedBecause": "Refusé : {{reason}}",
+    "recountOnSave": "Les jours sont recalculés à l'enregistrement.",
+    "discardTitle": "Abandonner les modifications ?",
+    "discardMessage": "Ce congé contient des modifications non enregistrées.",
+    "discard": "Abandonner",
+    "errors": {
+      "blocked": "Ce congé ne peut pas être enregistré.",
+      "sameStatus": "Le congé a déjà ce statut.",
+      "invalidTransition": "Un congé approuvé ne peut pas repasser en attente.",
+      "notDeleted": "Ce congé n'est pas supprimé.",
+      "typeInactive": "Ce type de congé n'est plus actif.",
+      "endBeforeStart": "La date de fin précède la date de début.",
+      "invalidHalfDays": "Cette combinaison de demi-journées laisse un trou.",
+      "withdrawn": "Ce congé a été retiré par l'employé.",
+      "tooLong": "Un congé ne peut pas dépasser 366 jours."
+    }
+  },
+  "toast": {
+    "leaveCreated": "Congé saisi pour {{name}}",
+    "leaveUpdated": "Congé modifié",
+    "leaveDeleted": "Congé supprimé",
+    "statusChanged": "Congé : {{status}}",
+    "bulkApproved_one": "{{count}} congé approuvé",
+    "bulkApproved_other": "{{count}} congés approuvés",
+    "bulkUndone_one": "{{count}} congé remis en attente",
+    "bulkUndone_other": "{{count}} congés remis en attente",
+    "newRequest": "Nouvelle demande de {{name}}"
+  },
+  "employees": {
+    "drawerTitle": "Salarié",
+    "col": {
+      "name": "Nom",
+      "department": "Service",
+      "hireDate": "Embauche",
+      "jobTitle": "Poste",
+      "email": "E-mail",
+      "code": "Code",
+      "allowance": "Droits annuels",
+      "portal": "Portail",
+      "actions": "Actions"
+    },
+    "filter": "Statut des salariés",
+    "filters": {
+      "active": "Actifs",
+      "archived": "Archivés",
+      "all": "Tous"
+    },
+    "statusArchived": "Archivé",
+    "empty": "Ajoutez votre premier salarié ou importez une liste",
+    "quickAdd": {
+      "name": "Nom du nouveau salarié",
+      "department": "Service",
+      "newDepartment": "Nom du nouveau service",
+      "addDepartment": "+ Nouveau service",
+      "add": "Ajouter",
+      "opening": "Soldes d'ouverture",
+      "openingFor": "{{type}} (jours)",
+      "hint": "Entrée pour enregistrer et passer au suivant",
+      "focus": "Ajouter un salarié"
+    },
+    "added": "{{name}} ajouté",
+    "archived": "{{name}} archivé",
+    "restored": "{{name}} restauré",
+    "archive": "Archiver {{name}}",
+    "restore": "Restaurer {{name}}",
+    "archiveShort": "Archiver",
+    "restoreShort": "Restaurer",
+    "balances": "Soldes",
+    "history": "Historique des congés",
+    "noLeaves": "Aucun congé pour l'instant.",
+    "hiredOn": "Embauché le {{date}}",
+    "errors": {
+      "endBeforeHire": "La date de fin précède la date d'embauche.",
+      "duplicateCode": "Ce code salarié est déjà utilisé.",
+      "emailInUse": "Cet e-mail est déjà utilisé.",
+      "unknownDepartment": "Ce service n'existe pas.",
+      "duplicateOpening": "Un seul solde d'ouverture par type de congé.",
+      "alreadyArchived": "Ce salarié est déjà archivé.",
+      "notArchived": "Ce salarié n'est pas archivé.",
+      "noEmail": "Ajoutez d'abord une adresse e-mail.",
+      "noLoginIdentifier": "Ajoutez d'abord un e-mail ou un code salarié.",
+      "archived": "Ce salarié est archivé."
+    }
+  },
+  "departments": {
+    "errors": {
+      "duplicate": "Un service portant ce nom existe déjà.",
+      "notEmpty": "Ce service compte encore des employés. Déplacez-les ou archivez-les d’abord."
+    }
+  },
+  "ledger": {
+    "title": "Journal des soldes",
+    "adjust": "Ajuster le solde",
+    "type": "Type de congé",
+    "effectiveDate": "Date d'effet",
+    "days": "Jours (+/-)",
+    "note": "Note (obligatoire)",
+    "apply": "Appliquer l'ajustement",
+    "minusHalf": "Retirer une demi-journée",
+    "plusHalf": "Ajouter une demi-journée",
+    "date": "Date",
+    "entry": "Écriture",
+    "running": "Solde",
+    "empty": "Aucune écriture pour l'instant.",
+    "adjusted": "{{type}} ajusté de {{days}}",
+    "undoNote": "Annulation : {{note}}",
+    "entryType": {
+      "opening": "Ouverture",
+      "accrual": "Acquisition",
+      "leave": "Congé",
+      "adjustment": "Ajustement",
+      "carryover": "Report",
+      "expiry": "Expiration",
+      "reversal": "Contre-passation"
+    },
+    "errors": {
+      "zeroAdjustment": "Un ajustement ne peut pas être nul.",
+      "noteRequired": "Une note est obligatoire.",
+      "unknownLeaveType": "Type de congé inconnu."
+    }
+  },
+  "kpi": {
+    "group": "Chiffres clés",
+    "out": {
+      "label": "Absents aujourd'hui",
+      "none": "Personne n'est absent",
+      "back": "{{count}} de retour {{day}}"
+    },
+    "pending": {
+      "label": "Demandes en attente",
+      "none": "Rien à traiter",
+      "oldest_one": "la plus ancienne : il y a {{count}} jour",
+      "oldest_other": "la plus ancienne : il y a {{count}} jours",
+      "oldestToday": "la plus ancienne : aujourd'hui"
+    },
+    "upcoming": {
+      "label": "À venir (14 jours)",
+      "none": "Rien de prévu",
+      "next": "prochain : {{name}}, {{day}}"
+    },
+    "low": {
+      "label": "Soldes bas",
+      "none": "Tous les soldes sont corrects",
+      "lowest": "le plus bas : {{name}}, {{days}}"
+    }
+  },
+  "timeline": {
+    "label": "Planning des congés",
+    "off": "{{count}} absent(s)",
+    "logFor": "Saisir un congé pour {{name}}",
+    "barLabel": "{{name}}, {{type}}, {{range}}, {{status}}"
+  },
+  "whosOut": {
+    "title": "Qui est absent",
+    "toggle": "Afficher ou masquer les absents",
+    "tab": {
+      "today": "Aujourd'hui",
+      "week": "Cette semaine",
+      "next": "Semaine prochaine"
+    },
+    "none": "Personne n'est absent.",
+    "back": "retour {{date}}"
+  },
+  "agenda": {
+    "today": "Aujourd'hui"
+  },
+  "view": {
+    "label": "Vue de l'espace de travail",
+    "timeline": "Planning",
+    "list": "Liste"
+  },
+  "zoom": {
+    "label": "Zoom",
+    "week": "Semaine",
+    "month": "Mois"
+  },
+  "period": {
+    "previous": "Période précédente",
+    "next": "Période suivante",
+    "today": "Aujourd'hui"
+  },
+  "filters": {
+    "department": "Service",
+    "allDepartments": "Tous les services",
+    "type": "Type de congé",
+    "allTypes": "Tous les types",
+    "status": "Statut",
+    "statusDefault": "En attente et approuvés",
+    "statusAll": "Tous les statuts",
+    "clear": "Effacer les filtres"
+  },
+  "list": {
+    "approveSelected": "Approuver la sélection ({{count}})",
+    "clearSelection": "Effacer la sélection",
+    "selectAllPending": "Sélectionner toutes les demandes en attente",
+    "selectRow": "Sélectionner le congé de {{name}}"
+  },
+  "holidays": {
+    "errors": {
+      "duplicateDate": "Un jour férié existe déjà à cette date."
+    }
+  },
+  "accrual": {
+    "errors": {
+      "futurePeriod": "Impossible d’acquérir un mois qui n’a pas commencé.",
+      "period": "Choisissez un mois valide."
+    }
+  },
+  "reports": {
+    "period": "Période",
+    "month": "Mois",
+    "quarter": "Trimestre",
+    "year": "Année",
+    "quarterN": "T{{n}}",
+    "kind": {
+      "month": "Mois",
+      "quarter": "Trimestre",
+      "year": "Année",
+      "custom": "Personnalisée"
+    },
+    "payroll": {
+      "title": "Récapitulatif mensuel de paie",
+      "hint": "Jours par employé et par type de congé, avec les soldes en début et en fin de période."
+    },
+    "detail": {
+      "title": "Détail des congés",
+      "hint": "Une ligne par congé qui chevauche la période."
+    },
+    "empty": "Aucune donnée pour cette période",
+    "download": "Télécharger {{title}} en {{format}}",
+    "errors": {
+      "endBeforeStart": "La date de fin précède la date de début.",
+      "periodTooLong": "La période est trop longue (366 jours maximum)."
+    }
+  },
+  "settings": {
+    "tabs": {
+      "company": "Entreprise",
+      "types": "Types de congé",
+      "accrual": "Acquisition",
+      "holidays": "Jours fériés"
+    },
+    "readOnlyNote": "Modifiez les paramètres sur un écran plus grand",
+    "errors": {
+      "countryCode": "Saisissez un code pays à deux lettres.",
+      "locale": "Choisissez une langue prise en charge.",
+      "monthDay": "Utilisez le format MM-JJ, par exemple 03-31.",
+      "workDays": "Conservez au moins un jour travaillé."
+    },
+    "company": {
+      "title": "Entreprise",
+      "name": "Nom de l’entreprise",
+      "country": "Préréglage pays",
+      "countryNote": "Préréglage à confirmer (vérification du code du travail en attente)",
+      "workWeek": "Semaine de travail",
+      "preset": {
+        "monFri": "Lun–Ven",
+        "monSat": "Lun–Sam",
+        "sunThu": "Dim–Jeu"
+      },
+      "leaveYearStart": "L’année de congés commence en",
+      "defaultStatus": "Statut par défaut à l’enregistrement",
+      "allowNegative": "Autoriser un solde négatif",
+      "negativeLimit": "Limite négative (jours)",
+      "locale": "Langue et région",
+      "localeHint": "Détermine les formats de date et de nombre des exports et des e-mails.",
+      "teamVisibility": "Visibilité de l’équipe dans le portail",
+      "teamVisibilityHint": "Qui les employés voient comme absent.",
+      "visibility": {
+        "department": "Son service",
+        "company": "Toute l’entreprise",
+        "off": "Désactivée"
+      },
+      "saved": "Paramètres de l’entreprise enregistrés"
+    },
+    "departments": {
+      "title": "Services",
+      "v2Note": "L’effectif minimum est conservé pour plus tard ; la vérification arrive en V2.",
+      "name": "Nom du service",
+      "minStaffing": "Effectif minimum",
+      "minStaffingShort": "Min.",
+      "sortOrder": "Ordre d’affichage",
+      "count_one": "{{count}} actif",
+      "count_other": "{{count}} actifs",
+      "newName": "Nouveau service",
+      "add": "Ajouter un service",
+      "delete": "Supprimer {{name}}",
+      "added": "{{name}} ajouté",
+      "saved": "{{name}} enregistré",
+      "deleted": "{{name}} supprimé"
+    },
+    "types": {
+      "add": "Ajouter un type de congé",
+      "new": "Nouveau type de congé",
+      "edit": "Modifier le type de congé",
+      "editNamed": "Modifier {{name}}",
+      "name": "Nom",
+      "color": "Couleur",
+      "paid": "Payé",
+      "deducts": "Déduit du solde",
+      "deductsShort": "Déduit",
+      "requiresAttachment": "Justificatif obligatoire",
+      "dayCount": "Jours comptés",
+      "annualCap": "Plafond annuel (jours)",
+      "sortOrder": "Ordre d’affichage",
+      "defaultStatus": "Statut par défaut à l’enregistrement",
+      "inherit": "Défaut de l’entreprise",
+      "mode": {
+        "working": "Jours ouvrés",
+        "calendar": "Jours calendaires"
+      },
+      "ledgerNote": "Ne modifie pas les écritures passées du registre.",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "activeHint": "Désactivez pour le masquer des nouveaux congés. Un type n’est jamais supprimé.",
+      "status": "État",
+      "created": "{{name}} créé",
+      "saved": "{{name}} enregistré",
+      "palette": {
+        "blue": "Bleu",
+        "rose": "Rose vif",
+        "slate": "Ardoise",
+        "violet": "Violet",
+        "teal": "Sarcelle",
+        "orange": "Orange",
+        "lime": "Citron vert",
+        "pink": "Rose"
+      }
+    },
+    "accrual": {
+      "policies": "Règles d’acquisition",
+      "noPolicy": "Aucune règle pour l’instant",
+      "mode": "Mode",
+      "modes": {
+        "annual": "Annuel",
+        "monthly": "Mensuel"
+      },
+      "ratePerMonth": "Jours par mois",
+      "ratePerYear": "Jours par année de congés",
+      "prorate": "Proratiser le mois d’embauche",
+      "carryoverCap": "Plafond de report (jours)",
+      "carryoverExpiry": "Expiration du report (MM-JJ)",
+      "carryoverNote": "Le report ne s’exécute automatiquement qu’en V2 ; pour l’instant la règle est seulement conservée.",
+      "savePolicy": "Enregistrer la règle",
+      "history": "Historique ({{count}})",
+      "capShort": "plafond {{days}}",
+      "applyTitle": "Appliquer cette règle à partir de quand ?",
+      "applyMessage": "La nouvelle règle pour {{name}} s’applique :",
+      "applyToday": "À partir d’aujourd’hui",
+      "applyYearStart": "Dès le début de l’année de congés",
+      "saved": "Règle de {{name}} enregistrée",
+      "runTitle": "Lancer l’acquisition",
+      "month": "Mois",
+      "preview": "Aperçu",
+      "roundingNote": "Les montants proratisés sont arrondis au demi-jour le plus proche.",
+      "totals": "{{toCreate}} à créer, {{alreadyDone}} déjà faites, {{employees}} employés, {{days}} jours",
+      "col": {
+        "employee": "Employé",
+        "type": "Type de congé",
+        "days": "Jours",
+        "state": "État"
+      },
+      "alreadyDone": "Déjà fait",
+      "toCreate": "À créer",
+      "run": "Lancer l’acquisition de {{month}}",
+      "confirmTitle": "Lancer l’acquisition de {{month}} ?",
+      "confirmMessage": "Cela écrit {{count}} écritures dans le registre. Elles ne se modifient pas, elles s’annulent par contre-écriture.",
+      "ran": "{{created}} écritures créées, {{skipped}} déjà faites"
+    },
+    "holidays": {
+      "year": "Année",
+      "add": "Ajouter un jour férié",
+      "new": "Nouveau jour férié",
+      "edit": "Modifier le jour férié",
+      "editShort": "Modifier",
+      "editNamed": "Modifier {{name}}",
+      "deleteNamed": "Supprimer {{name}}",
+      "col": {
+        "date": "Date",
+        "name": "Nom",
+        "half": "Demi-journée",
+        "confirmed": "Confirmé",
+        "source": "Source"
+      },
+      "halfDay": "Demi-journée seulement",
+      "confirmed": "Date confirmée",
+      "toConfirm": "Date à confirmer",
+      "confirm": "Confirmer",
+      "source": {
+        "preset": "Préréglage",
+        "custom": "Personnalisé",
+        "closure": "Fermeture"
+      },
+      "empty": "Aucun jour férié en {{year}}.",
+      "saved": "{{name}} enregistré",
+      "deleted": "{{name}} supprimé",
+      "confirmedToast": "{{name}} confirmé",
+      "deleteTitle": "Supprimer {{name}} ?",
+      "deleteMessage": "Les congés qui incluent ce jour peuvent changer de nombre de jours.",
+      "affectedTitle_one": "{{count}} congé concerné",
+      "affectedTitle_other": "{{count}} congés concernés",
+      "affectedMessage": "Ces congés comptent maintenant un autre nombre de jours. Recalculez-les pour mettre à jour le décompte et le solde.",
+      "recalculate": "Recalculer ces congés",
+      "notNow": "Pas maintenant",
+      "skipped": "Ignoré",
+      "recalculated": "{{updated}} mis à jour, {{unchanged}} inchangés"
+    }
+  }
+}

@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* Design tokens (spec 2.3): neutral greys, one accent, 1 px borders, shadows only on overlays.
+   Dark theme is V2, but every colour is already a variable so it can be added without refactoring. */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --border: #e5e5e5;
+  --accent: #2563eb;
+  --accent-foreground: #ffffff;
+  --overlay-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+
+  /* Status pills: always dot + label, never colour alone */
+  --status-pending: #d97706;
+  --status-approved: #16a34a;
+  --status-rejected: #dc2626;
+  --status-cancelled: #737373;
+
+  /* Balance cells */
+  --balance-negative: #dc2626;
+  --balance-low: #d97706;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-status-pending: var(--status-pending);
+  --color-status-approved: var(--status-approved);
+  --color-status-rejected: var(--status-rejected);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-balance-negative: var(--balance-negative);
+  --color-balance-low: var(--balance-low);
+
+  /* Type scale: 13 px tables, 12 px meta, 24 px KPI figures */
+  --text-table: 13px;
+  --text-meta: 12px;
+  --text-kpi: 24px;
+
+  --shadow-overlay: var(--overlay-shadow);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Slide-in for drawers; the 6 s Undo countdown bar. Both are disabled under reduced motion. */
+@keyframes sheet-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.sheet-in {
+  animation: sheet-in 140ms ease-out;
+}
+.toast-timer {
+  transform-origin: left;
+  animation-name: toast-timer;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@media (max-width: 767px) {
+  .sheet-in {
+    animation-name: sheet-up;
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-in,
+  .toast-timer {
+    animation: none;
+  }
+}

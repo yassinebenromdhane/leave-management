@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794759901536,
+      "tag": "0000_stale_dexter_bennett",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794779035485,
+      "tag": "0001_even_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794919624187,
+      "tag": "0002_known_felicia_hardy",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "leave_request" ADD COLUMN "withdrawn_at" timestamp with time zone;

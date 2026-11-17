@@ -1,0 +1,59 @@
+# Production: docker compose up -d --build
+# Local dev database only: docker compose up -d db
+# Nightly backup (pg_dump + uploads volume, 14 days kept): scripts/backup.sh, run from cron
+# on the VPS; the crontab line and the restore recipe are in its header.
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-leave}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-leave}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    # Loopback only: reachable from this machine for dev and backups, never from the internet.
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      TRUST_PROXY: "1" # behind Caddy: client IP comes from X-Forwarded-For
+      APP_URL: https://${APP_DOMAIN}
+      DATABASE_URL: postgres://${POSTGRES_USER:-leave}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-leave}
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?set APP_DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:

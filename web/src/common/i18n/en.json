@@ -1,0 +1,732 @@
+{
+  "app": {
+    "name": "Leave"
+  },
+  "common": {
+    "loading": "Loading…",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "retry": "Retry",
+    "to": "to",
+    "undo": "Undo",
+    "dismiss": "Dismiss",
+    "copy": "Copy",
+    "copied": "Copied",
+    "done": "Done",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "notFound": "Not found.",
+    "tooManyRequests": "Too many attempts. Try again in a few minutes.",
+    "validation": "Some fields are invalid.",
+    "invalidDate": "Enter a valid date.",
+    "halfDayStep": "Days must be a multiple of 0.5.",
+    "required": "This field is required.",
+    "nothingToUpdate": "Nothing to update."
+  },
+  "health": {
+    "ok": "API connected",
+    "down": "API unreachable"
+  },
+  "auth": {
+    "operatorTitle": "HR sign-in",
+    "portalTitle": "My leave",
+    "identifier": "Email or employee code",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show",
+    "hidePassword": "Hide",
+    "rememberMe": "Keep me signed in",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signedInAs": "Signed in: {{name}}",
+    "changePasswordTitle": "Choose your password",
+    "changePasswordSubtitle": "Replace the temporary password before you continue.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "passwordRule": "At least {{min}} characters. Avoid common passwords.",
+    "savePassword": "Save password",
+    "inviteTitle": "Welcome! Choose your password",
+    "resetTitle": "New password",
+    "passwordSetTitle": "Password saved",
+    "passwordSetSubtitle": "You can sign in now.",
+    "goToPortal": "Go to my leave",
+    "goToOperator": "HR sign-in",
+    "linkExpired": "This link has expired or was already used. Ask HR for a new one.",
+    "forgotTitle": "Forgot password",
+    "forgotSubtitle": "Enter your email and we'll send a link valid for 30 minutes.",
+    "forgotSent": "If an account matches this email, a link is on its way. Check your inbox.",
+    "sendLink": "Send link",
+    "noEmailHint": "Signing in with an employee code? Ask HR for a new password.",
+    "backToSignIn": "Back to sign-in",
+    "errors": {
+      "invalidCredentials": "Incorrect sign-in details.",
+      "unauthenticated": "Your session has ended. Sign in again.",
+      "forbidden": "Access denied.",
+      "mustChangePassword": "Choose a new password to continue.",
+      "commonPassword": "This password is too common. Choose another one.",
+      "currentPasswordWrong": "The current password is incorrect.",
+      "invalidToken": "This link has expired or was already used.",
+      "passwordTooShort": "At least {{min}} characters.",
+      "passwordTooLong": "Password is too long.",
+      "identifierRequired": "Enter your email or employee code.",
+      "passwordRequired": "Enter your password.",
+      "emailInvalid": "Invalid email address."
+    }
+  },
+  "operator": {
+    "title": "HR workspace",
+    "placeholder": "The leave timeline arrives in step 4."
+  },
+  "portal": {
+    "title": "Portal access",
+    "greeting": "Hello {{name}}",
+    "on": "Portal on",
+    "off": "Portal off",
+    "invite": "Send invitation",
+    "inviteSent": "Invitation sent to {{name}}",
+    "tempPassword": "Temporary password",
+    "tempTitle": "Temporary password for {{name}}",
+    "loginIdentifier": "Sign in with",
+    "shownOnce": "Shown once. Give it to the employee; they must choose a new password at first sign-in.",
+    "enableAccess": "Enable portal access",
+    "disableAccess": "Disable portal access",
+    "enabled": "Portal access enabled",
+    "disabled": "Portal access disabled",
+    "signOutEverywhere": "Sign out everywhere",
+    "signedOutEverywhere": "Signed out on every device",
+    "actionsFor": "Portal actions for {{name}}",
+    "days_one": "{{formatted}} day",
+    "days_other": "{{formatted}} days",
+    "addedByHr": "Added by HR",
+    "changedByHr": "Changed by HR",
+    "withdraw": "Withdraw",
+    "withdrawTitle": "Withdraw this request?",
+    "withdrawMessage": "HR will no longer see it. You can send a new request any time.",
+    "contactHr": "To change an approved leave, contact HR.",
+    "balances": "Your balances",
+    "openLedger": "{{type}}: see balance history",
+    "pending": "Pending requests",
+    "upcoming": "Coming up",
+    "holidays": "Next public holidays",
+    "decision": {
+      "approved": "Good news! Your {{type}} ({{range}}) is approved.",
+      "rejected": "Your {{type}} ({{range}}) was not approved."
+    },
+    "empty": {
+      "withBalance_one": "You have {{formatted}} day of paid leave. Tap Request leave to plan your first one.",
+      "withBalance_other": "You have {{formatted}} days of paid leave. Tap Request leave to plan your first one.",
+      "generic": "Nothing planned yet. Tap Request leave to plan your first one."
+    },
+    "myLeaves": {
+      "empty": "You have not requested any leave yet."
+    },
+    "tabs": {
+      "label": "Portal sections",
+      "home": "Home",
+      "leaves": "My leaves",
+      "team": "Team"
+    },
+    "team": {
+      "strip": "{{count}} of {{size}} in {{department}} away: {{people}}",
+      "stripShort": "Away: {{people}}",
+      "empty": "Nobody is away this week or next.",
+      "thisWeek": "This week",
+      "nextWeek": "Next week",
+      "nobody": "Nobody is away.",
+      "away": "Away"
+    },
+    "settings": {
+      "title": "Settings",
+      "language": "Language",
+      "password": "Password",
+      "changePassword": "Change my password",
+      "passwordSaved": "Password changed."
+    },
+    "outbox": {
+      "sending": "Sending…",
+      "sent": "{{type}} request sent",
+      "discard": "Cancel this request",
+      "fileLost": "The document was not kept after the page reloaded. Attach it again with a new request if it is needed."
+    },
+    "request": {
+      "title": "Request leave",
+      "cta": "Request leave",
+      "submit": "Submit request",
+      "certificateExpected": "Certificate expected: you can send it later.",
+      "acknowledge": "I understand this takes my balance below zero.",
+      "addNote": "Add a note",
+      "addDocument": "Add a document or photo"
+    },
+    "toast": {
+      "sent": "Request sent",
+      "withdrawn": "Request withdrawn",
+      "queued": "You are offline. We will send your request when you are back online.",
+      "queuedFile": "You are offline. We will send your request when you are back online. Attach the document again if the page reloads."
+    },
+    "errors": {
+      "acknowledgeNegative": "Tick the box to confirm your balance goes below zero.",
+      "alreadyDecided": "HR already decided on this request.",
+      "notPending": "This request is no longer pending.",
+      "rangeTooLong": "That period is too long."
+    }
+  },
+  "nav": {
+    "main": "Main navigation",
+    "workspace": "Workspace",
+    "employees": "Employees",
+    "reports": "Reports",
+    "settings": "Settings",
+    "comingSoon": "Available in the next step."
+  },
+  "topbar": {
+    "search": "Search people",
+    "logLeave": "Log leave",
+    "switchLanguage": "Switch language",
+    "export": "Export",
+    "exportTitle": "Payroll summary for {{month}} ({{format}})"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "change": "Status: {{status}}. Change status",
+    "menu": "Change status"
+  },
+  "source": {
+    "operator": "Operator",
+    "portal": "Portal",
+    "portalMarker": "From portal"
+  },
+  "halfDay": {
+    "full": "Full day",
+    "am": "Morning",
+    "pm": "Afternoon",
+    "day": "Day",
+    "first": "First day",
+    "last": "Last day"
+  },
+  "balance": {
+    "takenPending": "{{taken}} taken · {{pending}} pending"
+  },
+  "datePicker": {
+    "presets": "Date presets",
+    "from": "From",
+    "to": "To",
+    "calendar": "Calendar",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "preset": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "thisWeek": "This week",
+      "nextWeek": "Next week"
+    }
+  },
+  "attachments": {
+    "title": "Attachment",
+    "drop": "Drop, paste or choose a PDF, JPG or PNG (10 MB max)",
+    "choose": "Choose file",
+    "remove": "Remove attachment",
+    "required": "This leave type needs a supporting document.",
+    "has": "Has an attachment",
+    "errors": {
+      "tooLarge": "The file is larger than 10 MB.",
+      "type": "Only PDF, JPG or PNG files are accepted.",
+      "empty": "The file is empty.",
+      "missing": "Choose a file to upload."
+    },
+    "dropTouch": "Add a PDF or photo (10 MB max)",
+    "takePhoto": "Take a photo"
+  },
+  "conflicts": {
+    "blocking": "Blocked",
+    "warning": "Warning",
+    "openLeave": "Open that leave",
+    "selfOverlap": "Overlaps with {{type}} {{range}}",
+    "zeroDays": "No working days in this range.",
+    "outsideEmployment": "Outside the employment period (from {{hireDate}}).",
+    "outsideEmploymentEnded": "Outside the employment period ({{hireDate}} to {{endDate}}).",
+    "negativeBalance_one": "Exceeds balance by {{formatted}} day",
+    "negativeBalance_other": "Exceeds balance by {{formatted}} days",
+    "colleaguesOff": "{{count}} of {{size}} in {{department}} already off: {{people}}",
+    "attachmentMissing": "A supporting document is required and missing."
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "newLeave": "Log a leave",
+    "addEmployee": "Add an employee",
+    "search": "Focus search",
+    "approve": "Approve the selected leave",
+    "reject": "Reject the selected leave",
+    "leaveType": "Choose leave type",
+    "save": "Save with the default status",
+    "savePending": "Save as pending",
+    "close": "Close drawer or clear",
+    "help": "Show this sheet",
+    "typingNote": "Single-letter shortcuts are off while you type in a field.",
+    "today": "Go to today",
+    "period": "Previous / next period",
+    "zoom": "Week / Month zoom"
+  },
+  "workspace": {
+    "thisMonth": "Leaves in {{month}}",
+    "empty": "Nobody is off. Press C to log a leave",
+    "noMatch": "No match. Clear filters",
+    "col": {
+      "employee": "Employee",
+      "type": "Type",
+      "dates": "Dates",
+      "days": "Days",
+      "status": "Status",
+      "flags": "Flags",
+      "source": "Source"
+    },
+    "clearFilters": "Clear filters",
+    "goEmployees": "Add employees"
+  },
+  "leave": {
+    "new": "Log leave",
+    "edit": "Leave",
+    "employee": "Employee",
+    "employeePlaceholder": "Type a name…",
+    "recent": "Recent",
+    "noEmployee": "No employee found.",
+    "changeEmployee": "Change employee",
+    "type": "Leave type",
+    "dates": "Dates",
+    "note": "Note (optional)",
+    "pickDates": "Pick the first and last day.",
+    "hasWarning": "Saved with a warning",
+    "daysCounted_one": "{{formatted}} working day",
+    "daysCounted_other": "{{formatted}} working days",
+    "excludedWeekend_one": "{{count}} weekend",
+    "excludedWeekend_other": "{{count}} weekends",
+    "excludedHoliday_one": "{{count}} public holiday",
+    "excludedHoliday_other": "{{count}} public holidays",
+    "excluded": "({{parts}} excluded)",
+    "balancePreview_one": "{{type}}: {{from}} → {{to}} day",
+    "balancePreview_other": "{{type}}: {{from}} → {{to}} days",
+    "saveAs": "Save as {{status}}",
+    "saveAsPending": "Save as pending",
+    "saveChanges": "Save changes",
+    "decision": "Decision",
+    "approve": "Approve",
+    "reject": "Reject",
+    "rejectReason": "Reason (optional)",
+    "confirmReject": "Reject",
+    "rejectedBecause": "Rejected: {{reason}}",
+    "recountOnSave": "Days are recounted when you save.",
+    "discardTitle": "Discard changes?",
+    "discardMessage": "You have unsaved changes in this leave.",
+    "discard": "Discard",
+    "errors": {
+      "blocked": "This leave cannot be saved.",
+      "sameStatus": "The leave already has that status.",
+      "invalidTransition": "An approved leave cannot go back to pending.",
+      "notDeleted": "This leave is not deleted.",
+      "typeInactive": "This leave type is no longer active.",
+      "endBeforeStart": "The end date is before the start date.",
+      "invalidHalfDays": "This half-day combination leaves a gap.",
+      "withdrawn": "This leave was withdrawn by the employee.",
+      "tooLong": "A leave cannot be longer than 366 days."
+    }
+  },
+  "toast": {
+    "leaveCreated": "Leave logged for {{name}}",
+    "leaveUpdated": "Leave updated",
+    "leaveDeleted": "Leave deleted",
+    "statusChanged": "Leave {{status}}",
+    "bulkApproved_one": "{{count}} leave approved",
+    "bulkApproved_other": "{{count}} leaves approved",
+    "bulkUndone_one": "{{count}} leave back to pending",
+    "bulkUndone_other": "{{count}} leaves back to pending",
+    "newRequest": "New request from {{name}}"
+  },
+  "employees": {
+    "drawerTitle": "Employee",
+    "col": {
+      "name": "Name",
+      "department": "Department",
+      "hireDate": "Hired",
+      "jobTitle": "Job title",
+      "email": "Email",
+      "code": "Code",
+      "allowance": "Allowance",
+      "portal": "Portal",
+      "actions": "Actions"
+    },
+    "filter": "Employee status",
+    "filters": {
+      "active": "Active",
+      "archived": "Archived",
+      "all": "All"
+    },
+    "statusArchived": "Archived",
+    "empty": "Add your first employee or import a list",
+    "quickAdd": {
+      "name": "New employee name",
+      "department": "Department",
+      "newDepartment": "New department name",
+      "addDepartment": "+ New department",
+      "add": "Add",
+      "opening": "Opening balances",
+      "openingFor": "{{type}} (days)",
+      "hint": "Enter to save and add the next",
+      "focus": "Add an employee"
+    },
+    "added": "{{name}} added",
+    "archived": "{{name}} archived",
+    "restored": "{{name}} restored",
+    "archive": "Archive {{name}}",
+    "restore": "Restore {{name}}",
+    "archiveShort": "Archive",
+    "restoreShort": "Restore",
+    "balances": "Balances",
+    "history": "Leave history",
+    "noLeaves": "No leaves yet.",
+    "hiredOn": "Hired {{date}}",
+    "errors": {
+      "endBeforeHire": "The end date is before the hire date.",
+      "duplicateCode": "This employee code is already used.",
+      "emailInUse": "This email is already used.",
+      "unknownDepartment": "That department does not exist.",
+      "duplicateOpening": "One opening balance per leave type.",
+      "alreadyArchived": "This employee is already archived.",
+      "notArchived": "This employee is not archived.",
+      "noEmail": "Add an email address first.",
+      "noLoginIdentifier": "Add an email or an employee code first.",
+      "archived": "This employee is archived."
+    }
+  },
+  "departments": {
+    "errors": {
+      "duplicate": "A department with this name already exists.",
+      "notEmpty": "This department still has employees. Move or archive them first."
+    }
+  },
+  "ledger": {
+    "title": "Ledger",
+    "adjust": "Adjust balance",
+    "type": "Leave type",
+    "effectiveDate": "Effective date",
+    "days": "Days (+/-)",
+    "note": "Note (required)",
+    "apply": "Apply adjustment",
+    "minusHalf": "Remove half a day",
+    "plusHalf": "Add half a day",
+    "date": "Date",
+    "entry": "Entry",
+    "running": "Balance",
+    "empty": "No ledger entries yet.",
+    "adjusted": "{{type}} adjusted by {{days}}",
+    "undoNote": "Undo: {{note}}",
+    "entryType": {
+      "opening": "Opening",
+      "accrual": "Accrual",
+      "leave": "Leave",
+      "adjustment": "Adjustment",
+      "carryover": "Carry-over",
+      "expiry": "Expiry",
+      "reversal": "Reversal"
+    },
+    "errors": {
+      "zeroAdjustment": "An adjustment cannot be zero.",
+      "noteRequired": "A note is required.",
+      "unknownLeaveType": "Unknown leave type."
+    }
+  },
+  "kpi": {
+    "group": "Key figures",
+    "out": {
+      "label": "Out today",
+      "none": "Nobody is off",
+      "back": "{{count}} back {{day}}"
+    },
+    "pending": {
+      "label": "Pending requests",
+      "none": "Nothing to decide",
+      "oldest_one": "oldest {{count}} day ago",
+      "oldest_other": "oldest {{count}} days ago",
+      "oldestToday": "oldest submitted today"
+    },
+    "upcoming": {
+      "label": "Upcoming (14 days)",
+      "none": "Nothing planned",
+      "next": "next: {{name}}, {{day}}"
+    },
+    "low": {
+      "label": "Low balances",
+      "none": "All balances healthy",
+      "lowest": "lowest: {{name}}, {{days}}"
+    }
+  },
+  "timeline": {
+    "label": "Leave timeline",
+    "off": "{{count}} off",
+    "logFor": "Log leave for {{name}}",
+    "barLabel": "{{name}}, {{type}}, {{range}}, {{status}}"
+  },
+  "whosOut": {
+    "title": "Who's out",
+    "toggle": "Show or hide who's out",
+    "tab": {
+      "today": "Today",
+      "week": "This week",
+      "next": "Next week"
+    },
+    "none": "Nobody is off.",
+    "back": "back {{date}}"
+  },
+  "agenda": {
+    "today": "Today"
+  },
+  "view": {
+    "label": "Workspace view",
+    "timeline": "Timeline",
+    "list": "List"
+  },
+  "zoom": {
+    "label": "Zoom",
+    "week": "Week",
+    "month": "Month"
+  },
+  "period": {
+    "previous": "Previous period",
+    "next": "Next period",
+    "today": "Today"
+  },
+  "filters": {
+    "department": "Department",
+    "allDepartments": "All departments",
+    "type": "Leave type",
+    "allTypes": "All types",
+    "status": "Status",
+    "statusDefault": "Pending and approved",
+    "statusAll": "All statuses",
+    "clear": "Clear filters"
+  },
+  "list": {
+    "approveSelected": "Approve selected ({{count}})",
+    "clearSelection": "Clear selection",
+    "selectAllPending": "Select all pending leaves",
+    "selectRow": "Select {{name}}'s leave"
+  },
+  "holidays": {
+    "errors": {
+      "duplicateDate": "A holiday already exists on this date."
+    }
+  },
+  "accrual": {
+    "errors": {
+      "futurePeriod": "You cannot accrue a month that has not started.",
+      "period": "Choose a valid month."
+    }
+  },
+  "reports": {
+    "period": "Period",
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year",
+    "quarterN": "Q{{n}}",
+    "kind": {
+      "month": "Month",
+      "quarter": "Quarter",
+      "year": "Year",
+      "custom": "Custom"
+    },
+    "payroll": {
+      "title": "Monthly payroll summary",
+      "hint": "Days per employee and leave type, with balances at the start and end of the period."
+    },
+    "detail": {
+      "title": "Leave detail",
+      "hint": "One line per leave overlapping the period."
+    },
+    "empty": "No data for this period",
+    "download": "Download {{title}} as {{format}}",
+    "errors": {
+      "endBeforeStart": "The end date is before the start date.",
+      "periodTooLong": "The period is too long (366 days at most)."
+    }
+  },
+  "settings": {
+    "tabs": {
+      "company": "Company",
+      "types": "Leave types",
+      "accrual": "Accrual",
+      "holidays": "Public holidays"
+    },
+    "readOnlyNote": "Edit settings on a larger screen",
+    "errors": {
+      "countryCode": "Enter a two-letter country code.",
+      "locale": "Choose a supported locale.",
+      "monthDay": "Use the MM-DD format, for example 03-31.",
+      "workDays": "Keep at least one working day."
+    },
+    "company": {
+      "title": "Company",
+      "name": "Company name",
+      "country": "Country preset",
+      "countryNote": "Preset to confirm (labour code check pending)",
+      "workWeek": "Working week",
+      "preset": {
+        "monFri": "Mon–Fri",
+        "monSat": "Mon–Sat",
+        "sunThu": "Sun–Thu"
+      },
+      "leaveYearStart": "Leave year starts in",
+      "defaultStatus": "Default status on save",
+      "allowNegative": "Allow a negative balance",
+      "negativeLimit": "Negative limit (days)",
+      "locale": "Locale",
+      "localeHint": "Drives date and number formats in exports and emails.",
+      "teamVisibility": "Team visibility in the portal",
+      "teamVisibilityHint": "Who employees see as away.",
+      "visibility": {
+        "department": "Own department",
+        "company": "Whole company",
+        "off": "Off"
+      },
+      "saved": "Company settings saved"
+    },
+    "departments": {
+      "title": "Departments",
+      "v2Note": "Minimum staffing is stored for later; the staffing check arrives in V2.",
+      "name": "Department name",
+      "minStaffing": "Minimum staffing",
+      "minStaffingShort": "Min.",
+      "sortOrder": "Sort order",
+      "count_one": "{{count}} active",
+      "count_other": "{{count}} active",
+      "newName": "New department",
+      "add": "Add department",
+      "delete": "Delete {{name}}",
+      "added": "{{name}} added",
+      "saved": "{{name}} saved",
+      "deleted": "{{name}} deleted"
+    },
+    "types": {
+      "add": "Add leave type",
+      "new": "New leave type",
+      "edit": "Edit leave type",
+      "editNamed": "Edit {{name}}",
+      "name": "Name",
+      "color": "Colour",
+      "paid": "Paid",
+      "deducts": "Deducts from the balance",
+      "deductsShort": "Deducts",
+      "requiresAttachment": "Attachment required",
+      "dayCount": "Days counted",
+      "annualCap": "Annual cap (days)",
+      "sortOrder": "Sort order",
+      "defaultStatus": "Default status on save",
+      "inherit": "Company default",
+      "mode": {
+        "working": "Working days",
+        "calendar": "Calendar days"
+      },
+      "ledgerNote": "Does not change past ledger entries.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "activeHint": "Deactivate to hide it from new leaves. Types are never deleted.",
+      "status": "State",
+      "created": "{{name}} created",
+      "saved": "{{name}} saved",
+      "palette": {
+        "blue": "Blue",
+        "rose": "Rose",
+        "slate": "Slate",
+        "violet": "Violet",
+        "teal": "Teal",
+        "orange": "Orange",
+        "lime": "Lime",
+        "pink": "Pink"
+      }
+    },
+    "accrual": {
+      "policies": "Accrual policies",
+      "noPolicy": "No policy yet",
+      "mode": "Mode",
+      "modes": {
+        "annual": "Annual",
+        "monthly": "Monthly"
+      },
+      "ratePerMonth": "Days per month",
+      "ratePerYear": "Days per leave year",
+      "prorate": "Prorate the hire month",
+      "carryoverCap": "Carryover cap (days)",
+      "carryoverExpiry": "Carryover expiry (MM-DD)",
+      "carryoverNote": "Carryover runs automatically only in V2; for now the policy is stored.",
+      "savePolicy": "Save policy",
+      "history": "History ({{count}})",
+      "capShort": "cap {{days}}",
+      "applyTitle": "Apply this rule from when?",
+      "applyMessage": "The new rule for {{name}} applies:",
+      "applyToday": "From today",
+      "applyYearStart": "From the start of the leave year",
+      "saved": "Policy for {{name}} saved",
+      "runTitle": "Run accrual",
+      "month": "Month",
+      "preview": "Preview",
+      "roundingNote": "Prorated amounts are rounded to the nearest half day.",
+      "totals": "{{toCreate}} to create, {{alreadyDone}} already done, {{employees}} employees, {{days}} days",
+      "col": {
+        "employee": "Employee",
+        "type": "Leave type",
+        "days": "Days",
+        "state": "State"
+      },
+      "alreadyDone": "Already done",
+      "toCreate": "To create",
+      "run": "Run accrual for {{month}}",
+      "confirmTitle": "Run accrual for {{month}}?",
+      "confirmMessage": "This writes {{count}} ledger entries. They cannot be edited, only reversed.",
+      "ran": "{{created}} entries created, {{skipped}} already done"
+    },
+    "holidays": {
+      "year": "Year",
+      "add": "Add holiday",
+      "new": "New holiday",
+      "edit": "Edit holiday",
+      "editShort": "Edit",
+      "editNamed": "Edit {{name}}",
+      "deleteNamed": "Delete {{name}}",
+      "col": {
+        "date": "Date",
+        "name": "Name",
+        "half": "Half day",
+        "confirmed": "Confirmed",
+        "source": "Source"
+      },
+      "halfDay": "Half day only",
+      "confirmed": "Date confirmed",
+      "toConfirm": "Date to confirm",
+      "confirm": "Confirm",
+      "source": {
+        "preset": "Preset",
+        "custom": "Custom",
+        "closure": "Closure"
+      },
+      "empty": "No holidays for {{year}}.",
+      "saved": "{{name}} saved",
+      "deleted": "{{name}} deleted",
+      "confirmedToast": "{{name}} confirmed",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteMessage": "Leaves that include this day may change their day count.",
+      "affectedTitle_one": "{{count}} leave affected",
+      "affectedTitle_other": "{{count}} leaves affected",
+      "affectedMessage": "These leaves count a different number of days now. Recalculate them to update the day count and the balance.",
+      "recalculate": "Recalculate these leaves",
+      "notNow": "Not now",
+      "skipped": "Skipped",
+      "recalculated": "{{updated}} updated, {{unchanged}} unchanged"
+    }
+  }
+}
