@@ -1,8 +1,9 @@
 // Idempotent seed: running it twice changes nothing.
 // - company_settings defaults (Mon–Fri, leave year starts in January, approved on save, no negatives)
 // - the five leave-type presets from spec 1.5
-// - a placeholder policy and holiday list. The first country preset is an open spec question,
-//   so nothing here is presented as legal fact. Everything is editable in Settings.
+// - the Tunisia preset: public holidays (lunar ones as unconfirmed estimates) and a default paid
+//   leave policy of 22 days a year earned monthly. Everything is editable in Settings; the rate is
+//   the operator's figure, not a statement of the law.
 import { sql } from "drizzle-orm";
 import { WEEK_PRESETS } from "@leave/shared";
 import { ensureOperator } from "../auth/accounts";
@@ -21,17 +22,37 @@ const LEAVE_TYPE_PRESETS = [
   { code: "comp_rest", name: L("Repos compensateur", "Compensatory rest"), color: "teal", isPaid: true, deductsBalance: true, requiresAttachment: false, dayCountMode: "working" },
 ] as const;
 
-// TODO(spec-open-question): replace with the first country preset once its labour code is checked.
-// Only near-universal fixed-date days are seeded so the timeline shading can be exercised.
-const PLACEHOLDER_HOLIDAYS = [
-  { date: "2026-01-01", name: L("Jour de l'an", "New Year's Day") },
-  { date: "2026-05-01", name: L("Fête du travail", "Labour Day") },
-  { date: "2027-01-01", name: L("Jour de l'an", "New Year's Day") },
-  { date: "2027-05-01", name: L("Fête du travail", "Labour Day") },
+// Country preset: TUNISIA (decided with the operator, Nov 2026). Editable in Settings → Holidays.
+// Fixed-date public holidays, every year:
+const TN_FIXED = [
+  { md: "01-01", name: L("Jour de l'an", "New Year's Day") },
+  { md: "03-20", name: L("Fête de l'Indépendance", "Independence Day") },
+  { md: "04-09", name: L("Journée des Martyrs", "Martyrs' Day") },
+  { md: "05-01", name: L("Fête du Travail", "Labour Day") },
+  { md: "07-25", name: L("Fête de la République", "Republic Day") },
+  { md: "08-13", name: L("Fête de la Femme", "Women's Day") },
+  { md: "10-15", name: L("Fête de l'Évacuation", "Evacuation Day") },
+  { md: "12-17", name: L("Fête de la Révolution", "Revolution Day") },
+];
+// Religious holidays follow the lunar calendar: these are ESTIMATED dates, seeded unconfirmed
+// ("date to confirm" in the UI) until the official announcement; the operator moves them then.
+const TN_LUNAR_ESTIMATES = [
+  { date: "2027-03-10", name: L("Aïd el-Fitr", "Eid al-Fitr") },
+  { date: "2027-03-11", name: L("Aïd el-Fitr (2e jour)", "Eid al-Fitr (day 2)") },
+  { date: "2027-05-17", name: L("Aïd el-Idha", "Eid al-Adha") },
+  { date: "2027-05-18", name: L("Aïd el-Idha (2e jour)", "Eid al-Adha (day 2)") },
+  { date: "2027-06-06", name: L("Ras el-Am el-Hijri", "Islamic New Year") },
+  { date: "2027-08-15", name: L("Mouled", "Prophet's Birthday") },
+];
+const TN_HOLIDAYS = [
+  ...[2026, 2027].flatMap((y) => TN_FIXED.map((h) => ({ date: `${y}-${h.md}`, name: h.name, isConfirmed: true }))),
+  ...TN_LUNAR_ESTIMATES.map((h) => ({ ...h, isConfirmed: false })),
 ];
 
-// TODO(spec-open-question): placeholder accrual rate for paid leave, not a legal value.
-const PLACEHOLDER_PAID_POLICY = { accrualMode: "monthly", rateDays: "1.5", effectiveFrom: "2026-01-01" } as const;
+// Paid leave default: 22 days per leave year, earned monthly (operator's figure, Nov 2026). An
+// editable company default, not a statement of Tunisian law: check the labour code / collective
+// agreement that applies and change it in Settings → Accrual.
+const DEFAULT_PAID_POLICY = { accrualMode: "monthly", rateDays: "22.0", effectiveFrom: "2026-01-01" } as const;
 
 async function seed(locale: Locale) {
   await db.transaction(async (tx) => {
@@ -70,13 +91,13 @@ async function seed(locale: Locale) {
     if (paid) {
       await tx
         .insert(leavePolicy)
-        .values({ leaveTypeId: paid.id, prorateHireMonth: true, ...PLACEHOLDER_PAID_POLICY })
+        .values({ leaveTypeId: paid.id, prorateHireMonth: true, ...DEFAULT_PAID_POLICY })
         .onConflictDoNothing({ target: [leavePolicy.leaveTypeId, leavePolicy.effectiveFrom] });
     }
 
     await tx
       .insert(holiday)
-      .values(PLACEHOLDER_HOLIDAYS.map((h) => ({ date: h.date, name: h.name[locale], source: "preset" as const })))
+      .values(TN_HOLIDAYS.map((h) => ({ date: h.date, name: h.name[locale], isConfirmed: h.isConfirmed, source: "preset" as const })))
       .onConflictDoNothing({ target: holiday.date });
   });
 }

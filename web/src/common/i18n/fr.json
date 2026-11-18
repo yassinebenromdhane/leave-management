@@ -658,8 +658,9 @@
         "annual": "Annuel",
         "monthly": "Mensuel"
       },
-      "ratePerMonth": "Jours par mois",
       "ratePerYear": "Jours par année de congés",
+      "monthlyHint": "Acquis chaque mois : ≈ {{perMonth}} jour par mois (≈ {{perDay}} par jour sur un mois de 30 jours). Crédités par demi-journée ; le reste est reporté au mois suivant, le total de l’année est exact.",
+      "perYear": "{{days}} j/an",
       "prorate": "Proratiser le mois d’embauche",
       "carryoverCap": "Plafond de report (jours)",
       "carryoverExpiry": "Expiration du report (MM-JJ)",

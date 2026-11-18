@@ -28,7 +28,8 @@ beforeEach(async () => {
   resetRateLimits();
   op = await signedInOperator();
   types = await createLeaveTypes();
-  await db.insert(leavePolicy).values({ leaveTypeId: types.paid.id, accrualMode: "monthly", rateDays: "2.0", effectiveFrom: "2025-01-01" });
+  // 22 days per leave year, earned monthly (the rate is per leave year in both modes).
+  await db.insert(leavePolicy).values({ leaveTypeId: types.paid.id, accrualMode: "monthly", rateDays: "22.0", effectiveFrom: "2025-01-01" });
 });
 
 afterAll(async () => {
@@ -56,11 +57,22 @@ describe("monthly accrual", () => {
     expect(preview.totals).toMatchObject({ rows: 1, toCreate: 0, alreadyDone: 1 });
   });
 
+  it("a full leave year of runs credits exactly 22.0 in 0.5-day entries (2, 1.5, 2, 2, 1.5…)", async () => {
+    const e = await emp({ hireDate: "2024-01-01" });
+    for (let m = 1; m <= 12; m++) {
+      expect((await op.post("/api/operator/accrual/run", { period: `2025-${String(m).padStart(2, "0")}` })).status).toBe(200);
+    }
+    const rows = (await accrualRows(e.id)).sort((a, b) => a.periodKey!.localeCompare(b.periodKey!));
+    expect(rows.map((r) => r.days)).toEqual(["2.0", "1.5", "2.0", "2.0", "1.5", "2.0", "2.0", "1.5", "2.0", "2.0", "1.5", "2.0"]);
+    expect(rows.reduce((s, r) => s + Number(r.days) * 2, 0) / 2).toBe(22);
+  });
+
   it("prorates hires and leavers, includes archived leavers of that month, skips zero-day rows", async () => {
-    const hire = await emp({ hireDate: "2025-03-16" }); // 16/31 × 2 = 1.03 → 1
-    const leaver = await emp({ hireDate: "2020-01-01", endDate: "2025-03-15", status: "archived" }); // 15/31 × 2 → 1
+    const hire = await emp({ hireDate: "2025-03-16" }); // 16 days × 22/12/31 = 0.95 → 1
+    // Jan + Feb = 3.67 earned → 3.5 credited; + 15/31 of March = 4.55 → 4.5, so March credits 1
+    const leaver = await emp({ hireDate: "2020-01-01", endDate: "2025-03-15", status: "archived" });
     const gone = await emp({ hireDate: "2020-01-01", endDate: "2025-02-28", status: "archived" });
-    const late = await emp({ hireDate: "2025-03-31" }); // 1/31 × 2 = 0.06 → 0 → skipped
+    const late = await emp({ hireDate: "2025-03-31" }); // 1 day × 0.059 → 0 → skipped
     const future = await emp({ hireDate: "2025-04-01" });
 
     const preview = await json<Preview>(await op.post("/api/operator/accrual/preview", { period: "2025-03" }));
@@ -76,16 +88,19 @@ describe("monthly accrual", () => {
     expect(await accrualRows(late.id)).toHaveLength(0);
   });
 
-  it("uses the policy effective at the period start (history is respected)", async () => {
-    await db.insert(leavePolicy).values({ leaveTypeId: types.paid.id, accrualMode: "monthly", rateDays: "3.0", effectiveFrom: "2025-03-02" });
+  it("uses the policy effective at each month's start (history is respected)", async () => {
+    await db.insert(leavePolicy).values({ leaveTypeId: types.paid.id, accrualMode: "monthly", rateDays: "34.0", effectiveFrom: "2025-03-02" });
     const e = await emp();
+    // March still under 22 a year: Jan–Mar = 5.5, of which March credits 2.
     const p = await json<Preview>(await op.post("/api/operator/accrual/preview", { period: "2025-03" }));
     expect(p.rows.find((r) => r.employeeId === e.id)?.days).toBe(2);
+    // April under 34 a year: 5.5 + 2.83 = 8.33 → 8.5, so April credits 3.
     const april = await json<Preview>(await op.post("/api/operator/accrual/preview", { period: "2025-04" }));
     expect(april.rows.find((r) => r.employeeId === e.id)?.days).toBe(3);
   });
 
-  it("annual allowance override: monthly rate = override / 12, rounded", async () => {
+  it("the employee's annual allowance override replaces the policy's days per year", async () => {
+    // 30 a year: Jan–Feb = 5.0, Jan–Mar = 7.5 → March credits 2.5
     const e = await emp({ annualAllowanceOverride: "30.0" });
     const p = await json<Preview>(await op.post("/api/operator/accrual/preview", { period: "2025-03" }));
     expect(p.rows.find((r) => r.employeeId === e.id)?.days).toBe(2.5);

@@ -658,8 +658,9 @@
         "annual": "Annual",
         "monthly": "Monthly"
       },
-      "ratePerMonth": "Days per month",
       "ratePerYear": "Days per leave year",
+      "monthlyHint": "Earned each month: ≈ {{perMonth}} day a month (≈ {{perDay}} a day in a 30-day month). Credited in half days; the remainder carries to the next month, so the year total is exact.",
+      "perYear": "{{days}} d/yr",
       "prorate": "Prorate the hire month",
       "carryoverCap": "Carryover cap (days)",
       "carryoverExpiry": "Carryover expiry (MM-DD)",

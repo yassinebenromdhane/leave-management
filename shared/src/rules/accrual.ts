@@ -7,10 +7,13 @@
 //   because the spec says nothing accrues after end_date.
 // - Annual grants are prorated by months remaining in the leave year, the hire (or leaving)
 //   month counted by days, when the employee is hired during that leave year.
-// - An employee's `annualAllowanceOverride` replaces the yearly amount: in annual mode it IS the
-//   grant; in monthly mode the monthly rate is override / 12, rounded through roundAccrual().
+// - A policy's rate is in DAYS PER LEAVE YEAR in both modes (decided with the operator,
+//   Nov 2026: e.g. 22 a year earned monthly ≈ 1.83 a month). An employee's
+//   `annualAllowanceOverride` replaces it.
+// - Monthly mode is cumulative within the leave year (see monthlyAccrualFor), so amounts that are
+//   not 0.5 steps per month (22 / 12) still total exactly 22 a year in 0.5-day ledger entries.
 import { addMonths, getDaysInMonth } from "date-fns";
-import type { AccrualMode, IsoDate } from "../types";
+import type { IsoDate } from "../types";
 import { addIsoDays, daysBetween, monthKey, toDate, toIso } from "./dates";
 
 /** "YYYY-MM" */
@@ -18,9 +21,10 @@ export type MonthKey = string;
 
 export const MONTH_KEY_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 
-// OPEN QUESTION (spec): rounding of prorated accrual.
-// The spec does not say how prorated amounts reach the 0.5-day unit. Choice: round half-up to the
-// nearest 0.5 (0.25 → 0.5, 0.74 → 0.5, 0.75 → 1). Change it here only. Never negative.
+// Rounding of accrual to the 0.5-day unit (spec open question, settled with the operator in
+// Nov 2026): round half-up to the nearest 0.5 (0.25 → 0.5, 0.74 → 0.5, 0.75 → 1), applied to the
+// RUNNING TOTAL of the leave year in monthly mode, so the remainder carries to the next month and
+// nothing is lost. Change it here only. Never negative.
 const EPSILON = 1e-9; // absorbs floating-point noise such as 0.24999999999999997
 export function roundAccrual(days: number): number {
   const halves = Math.floor(days * 2 + 0.5 + EPSILON);
@@ -68,14 +72,42 @@ function employedFraction(month: MonthKey, emp: Employment, prorateHireMonth: bo
 }
 
 export type MonthlyAccrualInput = Employment & {
-  rateDays: number;
+  /**
+   * Days per LEAVE YEAR in force for a given month of the leave year (policy version and employee
+   * override already applied). Earned month by month: rate / 12 per full month.
+   */
+  annualRateFor: (month: MonthKey) => number;
   prorateHireMonth: boolean;
+  /** First month of the leave year, 1..12 (company setting). */
+  leaveYearStartMonth: number;
   month: MonthKey;
 };
 
-/** Days accrued for one month (rule 6), rounded through roundAccrual(). */
+/**
+ * Days credited for one month (rule 6), CUMULATIVE within the leave year so the 0.5-day unit
+ * never loses days: credit = roundAccrual(earned up to and including this month) −
+ * roundAccrual(earned before it). 22 days a year gives 2, 1.5, 2, 2, 1.5… and exactly 22.0 over
+ * the year; the running total stays within ±0.25 day of the exact amount. A partial month earns
+ * by calendar days employed (22 / 12 / 30 ≈ 0.06 a day in a 30-day month). The leave year's first
+ * month starts from zero again (carryover is a separate ledger entry). Pure and order-free: the
+ * credit for a month depends only on its inputs, so runs stay idempotent per period key.
+ */
 export function monthlyAccrualFor(input: MonthlyAccrualInput): number {
-  return roundAccrual(input.rateDays * employedFraction(input.month, input, input.prorateHireMonth));
+  const yearStart = leaveYearStartFor(`${input.month}-01`, input.leaveYearStartMonth);
+  let before = 0;
+  let current = 0;
+  for (let i = 0; i < 12; i++) {
+    const month = monthKey(toIso(addMonths(toDate(yearStart), i)));
+    const earned = (input.annualRateFor(month) / 12) * employedFraction(month, input, input.prorateHireMonth);
+    if (month === input.month) {
+      current = earned;
+      break;
+    }
+    before += earned;
+  }
+  // Integer halves on both sides, so the difference is an exact 0.5 step.
+  const halves = roundAccrual(before + current) * 2 - roundAccrual(before) * 2;
+  return Math.max(0, halves) / 2;
 }
 
 export type AnnualGrantInput = Employment & {
@@ -101,10 +133,10 @@ export function annualGrantFor(input: AnnualGrantInput): number {
 }
 
 /**
- * The rate to feed monthlyAccrualFor / annualGrantFor for one employee: the policy rate, or the
- * employee's annual allowance override (annual mode: the grant; monthly mode: override / 12).
+ * Days per leave year for one employee: the policy rate, or the employee's annual allowance
+ * override. Both modes count in days per leave year (annual: granted at the start; monthly:
+ * earned month by month through monthlyAccrualFor).
  */
-export function accrualRate(input: { accrualMode: AccrualMode; rateDays: number; override: number | null }): number {
-  if (input.override === null) return input.rateDays;
-  return input.accrualMode === "annual" ? input.override : input.override / 12;
+export function accrualRate(input: { rateDays: number; override: number | null }): number {
+  return input.override ?? input.rateDays;
 }

@@ -64,6 +64,9 @@ function PolicyCard({ type, group, readOnly }: { type: SettingsLeaveType; group:
   };
 
   const history = group?.history ?? [];
+  // Display only: the server credits the cumulative amount in 0.5-day entries (monthlyAccrualFor).
+  const perYear = Number(d.rate.replace(",", "."));
+  const monthlyRate = d.rate.trim() !== "" && Number.isFinite(perYear) && perYear > 0 ? perYear / 12 : null;
   return (
     <section className="rounded-lg border p-4" aria-label={type.name}>
       <header className="mb-3 flex items-center gap-2">
@@ -80,7 +83,7 @@ function PolicyCard({ type, group, readOnly }: { type: SettingsLeaveType; group:
             ))}
           </select>
         </Field>
-        <Field label={t(d.accrualMode === "monthly" ? "settings.accrual.ratePerMonth" : "settings.accrual.ratePerYear")}>
+        <Field label={t("settings.accrual.ratePerYear")}>
           <input value={d.rate} inputMode="decimal" onChange={(e) => set("rate", e.target.value)} className={cn(inputCls, "tabular-nums")} />
         </Field>
         <Field label={t("settings.accrual.carryoverCap")}>
@@ -93,6 +96,14 @@ function PolicyCard({ type, group, readOnly }: { type: SettingsLeaveType; group:
       <div className="mt-3">
         <Check label={t("settings.accrual.prorate")} checked={d.prorate} onChange={(v) => set("prorate", v)} />
       </div>
+      {d.accrualMode === "monthly" && monthlyRate !== null ? (
+        <p className="mt-1 text-meta text-muted-foreground">
+          {t("settings.accrual.monthlyHint", {
+            perMonth: new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(monthlyRate),
+            perDay: new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 2 }).format(monthlyRate / 30),
+          })}
+        </p>
+      ) : null}
       <p className="mt-1 text-meta text-muted-foreground">{t("settings.accrual.carryoverNote")}</p>
       {error ? (
         <p role="alert" className="mt-2 text-meta text-status-rejected">
@@ -110,7 +121,7 @@ function PolicyCard({ type, group, readOnly }: { type: SettingsLeaveType; group:
           <ul className="mt-1 space-y-0.5 tabular-nums">
             {[...history].reverse().map((p) => (
               <li key={p.id}>
-                {formatDay(p.effectiveFrom, i18n.language, { day: "numeric", month: "short", year: "numeric" })}: {t(`settings.accrual.modes.${p.accrualMode}`)} · {formatDays(p.rateDays, i18n.language)}
+                {formatDay(p.effectiveFrom, i18n.language, { day: "numeric", month: "short", year: "numeric" })}: {t(`settings.accrual.modes.${p.accrualMode}`)} · {t("settings.accrual.perYear", { days: formatDays(p.rateDays, i18n.language) })}
                 {p.carryoverCapDays !== null ? ` · ${t("settings.accrual.capShort", { days: formatDays(p.carryoverCapDays, i18n.language) })}` : ""}
               </li>
             ))}

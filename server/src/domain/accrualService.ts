@@ -6,7 +6,9 @@
 // - Leave types: active, deducting, with a policy effective at the period start (latest
 //   effective_from <= first day of the month). A policy saved "from today" mid-month therefore
 //   applies from the next run month.
-// - monthly policy → period_key "YYYY-MM", effective_date = first day of the month.
+// - Policy rates are DAYS PER LEAVE YEAR in both modes (employee override replaces them).
+// - monthly policy → period_key "YYYY-MM", effective_date = first day of the month. The amount is
+//   cumulative within the leave year (22 a year → 2, 1.5, 2, 2, 1.5… = exactly 22.0).
 // - annual policy  → only when the period is the leave-year start month; period_key = leave-year
 //   label ("Y2026" / "Y2026-27"), effective_date = leave-year start.
 // - Idempotent through ledger_entry's unique (employee, type, entry_type, period_key) index +
@@ -74,28 +76,44 @@ async function computeAccrual(conn: Conn, period: MonthKey): Promise<AccrualRow[
     .orderBy(asc(leaveType.sortOrder), asc(leaveType.name));
   if (employees.length === 0 || types.length === 0) return [];
 
-  // Latest policy per type effective at the period start.
-  const policies = await conn
-    .selectDistinctOn([leavePolicy.leaveTypeId])
+  // Every policy version effective by the period start, newest first per type: the latest one
+  // governs this period; earlier ones give the rate of earlier months of the leave year (monthly
+  // accrual is cumulative within the leave year, see monthlyAccrualFor).
+  const allPolicies = await conn
+    .select()
     .from(leavePolicy)
     .where(and(inArray(leavePolicy.leaveTypeId, types.map((t) => t.id)), lte(leavePolicy.effectiveFrom, start)))
     .orderBy(leavePolicy.leaveTypeId, sql`${leavePolicy.effectiveFrom} desc`);
-  const policyByType = new Map(policies.map((p) => [p.leaveTypeId, p]));
+  const policiesByType = new Map<string, typeof allPolicies>();
+  for (const p of allPolicies) policiesByType.set(p.leaveTypeId, [...(policiesByType.get(p.leaveTypeId) ?? []), p]);
+  /** The policy in force on the first day of `month` (versions are newest first). */
+  const policyAt = (versions: typeof allPolicies, month: MonthKey) =>
+    versions.find((v) => v.effectiveFrom <= monthBounds(month).start);
 
   const yearKey = leaveYearLabel(start);
   const candidates: AccrualRow[] = [];
   for (const t of types) {
-    const p = policyByType.get(t.id);
+    const versions = policiesByType.get(t.id) ?? [];
+    const p = versions[0];
     if (!p) continue;
     if (p.accrualMode === "annual" && !isLeaveYearStart) continue;
     for (const e of employees) {
       const override = e.override === null ? null : toDays(e.override);
-      const rate = accrualRate({ accrualMode: p.accrualMode, rateDays: toDays(p.rateDays), override });
-      const emp = { hireDate: e.hireDate, endDate: e.endDate, rateDays: rate, prorateHireMonth: p.prorateHireMonth };
+      const emp = { hireDate: e.hireDate, endDate: e.endDate, prorateHireMonth: p.prorateHireMonth };
       const days =
         p.accrualMode === "monthly"
-          ? monthlyAccrualFor({ ...emp, month: period })
-          : annualGrantFor({ ...emp, leaveYearStart: start });
+          ? monthlyAccrualFor({
+              ...emp,
+              month: period,
+              leaveYearStartMonth: settings.leaveYearStartMonth,
+              // Days per leave year in force that month; months under an annual policy (granted
+              // up front) or before any policy earn nothing here.
+              annualRateFor: (month) => {
+                const v = policyAt(versions, month);
+                return v && v.accrualMode === "monthly" ? accrualRate({ rateDays: toDays(v.rateDays), override }) : 0;
+              },
+            })
+          : annualGrantFor({ ...emp, rateDays: accrualRate({ rateDays: toDays(p.rateDays), override }), leaveYearStart: start });
       if (days === 0) continue;
       candidates.push({
         employeeId: e.id,

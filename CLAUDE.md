@@ -79,8 +79,8 @@ Build only MVP unless the user asks for V2. V2 = bulk CSV import, seniority tier
 
 ## Open questions: do not invent answers
 
-- **Which country preset ships first** is undecided. Do not hardcode legal accrual rates or a holiday list as fact. Seed an editable placeholder preset and mark it `TODO(spec-open-question)`.
-- The spec does not say how to **round prorated accrual** to the 0.5-day unit. Keep it in one named function and flag it in your reply.
+- **Country preset: Tunisia** (decided with the operator, Nov 2026). Fixed public holidays are seeded; lunar ones are seeded as unconfirmed estimates. The paid-leave default (22 days/year, earned monthly) is the operator's figure: keep it an editable default and never present a rate as Tunisian law.
+- **Accrual rounding** (decided Nov 2026): policy `rate_days` is **days per leave year** in both modes. Monthly mode credits cumulatively within the leave year: `roundAccrual(earned to date) − roundAccrual(earned before)`, half-up to 0.5, so 22/year gives 2, 1.5, 2… and exactly 22.0. Partial months earn by calendar days (≈ 0.06/day). All in `shared/src/rules/accrual.ts`.
 - Email: Brevo SMTP is decided (stack §1). Treat provider settings as env vars only.
 
 ## Where to look

@@ -60,8 +60,8 @@ Changing the dates or halves of an approved leave, in **one transaction**: `reve
 
 ## Rule 6: monthly accrual
 
-`+rate_days` per active employee, type and month, `entry_type = 'accrual'`, `period_key = 'YYYY-MM'`. Prorate the hire month by days employed when `prorate_hire_month` is on. Nothing after `end_date`. Idempotent through the unique key `(employee_id, leave_type_id, entry_type, period_key)` plus `onConflictDoNothing`. MVP: triggered by a manual **"Run accrual"** button. V2: croner job on the 1st, with a one-click revert that writes reversals.
-⚠ The spec does not say how to round prorated values to 0.5. Keep a single `roundAccrual()` and flag the choice to the user.
+`rate_days` is **days per leave year** in both modes (operator decision, Nov 2026; the employee's `annual_allowance_override` replaces it). Monthly mode writes one entry per active employee, type and month, `entry_type = 'accrual'`, `period_key = 'YYYY-MM'`, with `days = roundAccrual(earned to date in the leave year) − roundAccrual(earned before this month)`: cumulative, so 22/year gives 2, 1.5, 2, 2, 1.5… and exactly 22.0, never more than ±0.25 off. Earned per month = rate / 12 × fraction of the month employed (calendar days; hire month prorated when `prorate_hire_month` is on). Nothing after `end_date`. Idempotent through the unique key `(employee_id, leave_type_id, entry_type, period_key)` plus `onConflictDoNothing`. MVP: triggered by a manual **"Run accrual"** button. V2: croner job on the 1st, with a one-click revert that writes reversals.
+`roundAccrual()` (half-up to 0.5) is the single rounding point; the decision is settled, see `shared/src/rules/accrual.ts`.
 Use the `leave_policy` row whose `effective_from` applies to the accrual month (a new policy row on each rule change keeps history correct).
 
 ## Rule 7: year-end (V2 job, rule defined now)
