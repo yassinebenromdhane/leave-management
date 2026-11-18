@@ -20,7 +20,7 @@ export function useEmployees(status: EmployeeStatusFilter) {
   return useQuery({
     queryKey: queryKeys.employees(status),
     queryFn: () => fetchEmployees(status),
-    refetchInterval: 30_000, // polling fallback until the SSE channel exists
+    refetchInterval: 30_000, // fallback when the SSE stream (useLeaveEvents) is down
   });
 }
 

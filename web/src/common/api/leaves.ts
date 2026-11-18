@@ -18,7 +18,7 @@ export function useLeaves(filters: LeaveListQuery) {
   return useQuery({
     queryKey: queryKeys.leaves(filters),
     queryFn: () => fetchLeaves(filters),
-    refetchInterval: 30_000, // polling fallback until the SSE channel exists
+    refetchInterval: 30_000, // fallback when the SSE stream (useLeaveEvents) is down
     placeholderData: keepPreviousData, // keeps the timeline on screen while the period changes
   });
 }

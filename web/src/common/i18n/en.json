@@ -369,7 +369,7 @@
       "all": "All"
     },
     "statusArchived": "Archived",
-    "empty": "Add your first employee or import a list",
+    "empty": "Add your first employee",
     "quickAdd": {
       "name": "New employee name",
       "department": "Department",

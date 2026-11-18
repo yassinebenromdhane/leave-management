@@ -369,7 +369,7 @@
       "all": "Tous"
     },
     "statusArchived": "Archivé",
-    "empty": "Ajoutez votre premier salarié ou importez une liste",
+    "empty": "Ajoutez votre premier salarié",
     "quickAdd": {
       "name": "Nom du nouveau salarié",
       "department": "Service",

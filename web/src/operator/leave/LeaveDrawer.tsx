@@ -30,6 +30,7 @@ import { LeaveTypeChip } from "@/common/components/LeaveTypeChip";
 import { StatusPill } from "@/common/components/StatusPill";
 import { useDebounced } from "@/common/hooks/useDebounced";
 import { useShortcuts } from "@/common/hooks/useShortcuts";
+import { useUnsavedGuard } from "@/common/hooks/useUnsavedGuard";
 import { todayIso } from "@/common/lib/date";
 import { errorMessage } from "@/common/lib/errorMessage";
 import { readJson, readStorage, writeStorage } from "@/common/lib/storage";
@@ -122,7 +123,14 @@ function LeaveForm({ reference, employees, leave }: { reference: Reference; empl
   const recentIds = useMemo(() => readJson<string[]>(RECENT_KEY, []), []);
 
   const dirty = file !== null || JSON.stringify(form) !== JSON.stringify(initial);
-  const requestClose = () => (dirty ? setDiscard(true) : nav.close());
+  // Browser Back / Forward, a rail link or any other navigation away with unsaved changes asks
+  // first, with the same dialog as Esc (verify-spec item 6). Intentional exits pass.
+  const guard = useUnsavedGuard(dirty);
+  const closeNow = () => {
+    guard.allowLeave();
+    nav.close();
+  };
+  const requestClose = () => (dirty ? setDiscard(true) : closeNow());
 
   // ---- live count: the shared rule, same inputs as the server ----
   const span = { startDate: form.start, endDate: form.end, startHalf: form.startHalf, endHalf: form.endHalf };
@@ -222,7 +230,7 @@ function LeaveForm({ reference, employees, leave }: { reference: Reference; empl
       }
       writeStorage(LAST_TYPE_KEY, type.id);
       writeStorage(RECENT_KEY, JSON.stringify([employee.id, ...recentIds.filter((x) => x !== employee.id)].slice(0, 5)));
-      nav.close();
+      closeNow();
     } catch (err) {
       setError(errorMessage(t, err));
     } finally {
@@ -277,7 +285,7 @@ function LeaveForm({ reference, employees, leave }: { reference: Reference; empl
               <button
                 type="button"
                 onClick={async () => {
-                  if (await actions.remove(leave)) nav.close();
+                  if (await actions.remove(leave)) closeNow();
                 }}
                 className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-status-rejected hover:bg-muted max-md:h-11"
               >
@@ -467,16 +475,20 @@ function LeaveForm({ reference, employees, leave }: { reference: Reference; empl
         ) : null}
       </div>
 
-      {discard ? (
+      {discard || guard.blocked ? (
         <ConfirmDialog
           title={t("leave.discardTitle")}
           message={t("leave.discardMessage")}
           confirmLabel={t("leave.discard")}
           destructive
-          onCancel={() => setDiscard(false)}
+          onCancel={() => {
+            setDiscard(false);
+            guard.stay();
+          }}
           onConfirm={() => {
             setDiscard(false);
-            nav.close();
+            if (guard.blocked) guard.proceed();
+            else closeNow();
           }}
         />
       ) : null}

@@ -1,13 +1,15 @@
 // GET /api/events: Server-Sent Events for live sync (stack §2, spec 4.3).
 // Operator → channel "operator"; employee → only `employee:<own id>`. Events are signals with ids
 // only; clients invalidate their queries and refetch through the access-checked API.
-// The session is re-checked on every heartbeat: sign-out, expiry, archiving or portal access
-// removal closes the stream within one heartbeat.
+// Revoking a user's sessions (archive, portal access removed, password change, sign-out
+// everywhere) closes their streams at once (revokeAllSessions → closeStreamsOf). The session is
+// also re-checked on every heartbeat as a backstop (plain sign-out, expiry). At most
+// MAX_STREAMS_PER_USER streams per user: a new tab closes the oldest one.
 import { AUTH_ERRORS } from "@leave/shared";
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import { employeeMayUsePortal, loadAuthUser, type AuthUser } from "../auth/middleware";
-import { employeeChannel, subscribe, type Channel, type LeaveEvent } from "../realtime/bus";
+import { employeeChannel, registerStream, subscribe, type Channel, type LeaveEvent } from "../realtime/bus";
 
 export const HEARTBEAT_MS = 25_000;
 
@@ -46,6 +48,12 @@ export const eventRoutes = new Hono().get("/", async (c) => {
       off();
       wake();
     });
+    // Closed from outside when the user's sessions are revoked, or past the per-user cap.
+    let closed = false;
+    const unregister = registerStream(access.who.userId, () => {
+      closed = true;
+      wake();
+    });
 
     try {
       await send("ping", ""); // first chunk right away: tells the client the stream is live
@@ -53,13 +61,14 @@ export const eventRoutes = new Hono().get("/", async (c) => {
         let timer: ReturnType<typeof setTimeout> | undefined;
         await Promise.race([aborted, new Promise((r) => (timer = setTimeout(r, HEARTBEAT_MS)))]);
         clearTimeout(timer);
-        if (stream.aborted) break;
+        if (stream.aborted || closed) break;
         const still = await channelsFor(c);
         if (!still || still.who.userId !== access.who.userId) break;
         await send("ping", "");
       }
     } finally {
       off();
+      unregister();
     }
   });
 });

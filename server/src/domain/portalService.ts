@@ -8,6 +8,7 @@ import {
   addIsoDays,
   portalConflictsView,
   portalSubmitVerdict,
+  portalTeamResponseSchema,
   withRunningBalance,
   type AwayEntry,
   type ConflictResult,
@@ -315,7 +316,9 @@ export async function getTeam(scope: PortalScope, q: PortalTeamQuery): Promise<P
       ),
     )
     .orderBy(asc(leaveRequest.startDate), asc(employee.fullName));
-  return { scope: visibility, people };
+  // Fail closed (verify-spec item 9): the strict schema rejects any column beyond the six "Away"
+  // fields, so a future change to the select above errors out instead of leaking teammate data.
+  return portalTeamResponseSchema.parse({ scope: visibility, people });
 }
 
 // ---------- preview (read-only) ----------

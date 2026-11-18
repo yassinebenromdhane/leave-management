@@ -1,11 +1,17 @@
 // Step 5 verification: live sync (stack §2, spec 4.3). Events are published after commit, carry
 // ids only, reach the operator channel and the owner's channel only; GET /api/events streams SSE.
 import { eq } from "drizzle-orm";
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetRateLimits } from "../src/auth/rateLimit";
 import { db, sql as pg } from "../src/db/client";
-import { leaveRequest, ledgerEntry } from "../src/db/schema";
-import { employeeChannel, subscribe, type LeaveEvent } from "../src/realtime/bus";
+import { leaveRequest, ledgerEntry, user } from "../src/db/schema";
+import {
+  MAX_STREAMS_PER_USER,
+  employeeChannel,
+  openStreamCount,
+  subscribe,
+  type LeaveEvent,
+} from "../src/realtime/bus";
 import { settleBackgroundJobs } from "../src/services/backgroundJobs";
 import { TestClient } from "./client";
 import { createEmployee, resetDb } from "./db";
@@ -171,5 +177,45 @@ describe("GET /api/events", () => {
     expect(text).not.toContain(empA.id);
     expect(text.match(/event: leave\./g)).toHaveLength(1);
     await reader.cancel();
+  });
+
+  /** Resolves true when the server ends the stream within `ms` (far below the 25 s heartbeat). */
+  async function endsWithin(reader: ReadableStreamDefaultReader<Uint8Array>, ms: number): Promise<boolean> {
+    const deadline = Date.now() + ms;
+    for (;;) {
+      const left = deadline - Date.now();
+      if (left <= 0) return false;
+      const chunk = await Promise.race([reader.read(), new Promise<null>((r) => setTimeout(() => r(null), left))]);
+      if (chunk === null) return false;
+      if (chunk.done) return true;
+    }
+  }
+
+  const aliceUserId = async () => (await db.select({ id: user.id }).from(user).where(eq(user.employeeId, empA.id)))[0]!.id;
+
+  it("archiving an employee closes their open stream at once, not at the next heartbeat (verify-spec item 5)", async () => {
+    const userId = await aliceUserId();
+    const res = await a.get("/api/events");
+    const reader = res.body!.getReader();
+    await readUntil(reader, "event: ping");
+    expect(openStreamCount(userId)).toBe(1);
+
+    expect((await op.post(`/api/operator/employees/${empA.id}/archive`)).status).toBe(200);
+    expect(await endsWithin(reader, 2000)).toBe(true);
+    await vi.waitFor(() => expect(openStreamCount(userId)).toBe(0));
+    expect((await a.get("/api/events")).status).toBe(401); // and it cannot reopen
+  });
+
+  it(`a user keeps at most ${MAX_STREAMS_PER_USER} streams: one more closes the oldest`, async () => {
+    const userId = await aliceUserId();
+    const readers: ReadableStreamDefaultReader<Uint8Array>[] = [];
+    for (let i = 0; i <= MAX_STREAMS_PER_USER; i++) {
+      const reader = (await a.get("/api/events")).body!.getReader();
+      await readUntil(reader, "event: ping");
+      readers.push(reader);
+    }
+    expect(await endsWithin(readers[0]!, 2000)).toBe(true); // the oldest was closed
+    await vi.waitFor(() => expect(openStreamCount(userId)).toBe(MAX_STREAMS_PER_USER));
+    for (const r of readers.slice(1)) await r.cancel();
   });
 });
