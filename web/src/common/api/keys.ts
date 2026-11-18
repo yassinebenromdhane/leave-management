@@ -10,7 +10,7 @@ export const queryKeys = {
   settings: (year?: number) => (year ? (["settings", year] as const) : (["settings"] as const)),
   holidays: (year: number) => ["holidays", year] as const,
   report: (kind: string, from: string, to: string) => ["report", kind, from, to] as const,
-  // employee portal (/api/me/*): everything under the "portal" root
+  // employee portal (/api/me/*): everything under the "portal" root so one prefix clears it
   portal: ["portal"] as const,
   portalReference: ["portal", "reference"] as const,
   portalDashboard: ["portal", "dashboard"] as const,

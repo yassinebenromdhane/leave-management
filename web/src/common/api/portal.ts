@@ -1,6 +1,7 @@
 // Employee portal hooks and raw calls over /api/me/*. Every id sent is the employee's own row;
 // the server derives the employee from the session. Balances always come from the server.
-import { addIsoDays, type PortalLeaveSubmitInput, type PortalPreviewInput } from "@leave/shared";
+import type { PortalLeaveSubmitInput, PortalPreviewInput } from "@leave/shared";
+import { addIsoDays } from "@leave/shared";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { todayIso } from "@/common/lib/date";
 import { api } from "./client";
@@ -49,8 +50,8 @@ export function usePortalLedger(leaveTypeId: string | null) {
 }
 
 /** The "Away" projection. The Team view refreshes by polling / refocus, never by events. */
-export function usePortalTeam(from: string, to: string) {
-  return useQuery({ queryKey: queryKeys.portalTeam(from, to), queryFn: () => fetchTeam(from, to), refetchInterval: 30_000 });
+export function usePortalTeam(from: string, to: string, enabled = true) {
+  return useQuery({ queryKey: queryKeys.portalTeam(from, to), queryFn: () => fetchTeam(from, to), refetchInterval: 30_000, enabled });
 }
 
 export function usePortalPreview(input: PortalPreviewInput | null) {
