@@ -25,6 +25,7 @@
   pre { background: #0f172a; color: #e2e8f0; padding: 3mm 3.5mm; border-radius: 2mm; font-size: 8.8pt; line-height: 1.45; white-space: pre-wrap; word-break: break-all; break-inside: avoid; direction: ltr; text-align: left; margin: 2mm 0; }
   kbd { display: inline-block; border: 1px solid #c7c7c7; border-bottom-width: 2px; border-radius: 1.2mm; padding: 0 1.4mm; font-size: 8.8pt; background: #fafafa; direction: ltr; unicode-bidi: isolate; }
   .ui { font-weight: 600; color: #1e3a8a; unicode-bidi: isolate; }
+  [dir="rtl"] .ui { white-space: nowrap; } /* a French label split across lines reads backwards in RTL */
   .note, .warn, .tip { border-inline-start: 3px solid var(--accent); background: var(--soft); padding: 2mm 3mm; margin: 2.5mm 0; border-radius: 1mm; break-inside: avoid; }
   .warn { border-color: var(--warn); background: var(--warnbg); }
   .tip { border-color: var(--ok); background: #f0fdf4; }
@@ -63,8 +64,8 @@
   <div class="band">
     <h1>Leave Management</h1>
     <div class="sub">Manuel d'utilisation · User manual</div>
-    <div class="sub">Étapes 1 à 4 · Steps 1 to 4</div>
-    <div class="ar" lang="ar">دليل الاستخدام · المراحل من 1 إلى 4</div>
+    <div class="sub">Étapes 1 à 5 · Steps 1 to 5</div>
+    <div class="ar" lang="ar">دليل الاستخدام · المراحل من 1 إلى 5</div>
   </div>
   <div>
     <div class="langs">
@@ -72,20 +73,20 @@
       <div><b>English</b>Install the app, set it up and manage leave from start to finish.</div>
       <div class="rtl" lang="ar"><b>العربية</b>تثبيت التطبيق وإعداده وإدارة الإجازات من البداية إلى النهاية.</div>
     </div>
-    <p class="muted" style="margin-top:6mm">Version: scaffold steps 1–4 (installation · sign-in · employees &amp; leave logging · workspace, settings &amp; exports). The employee self-service portal (<code>/me</code>) arrives in step 5.</p>
+    <p class="muted" style="margin-top:6mm">Version: steps 1–5 (installation · sign-in · employees &amp; leave logging · workspace, settings &amp; exports · employee portal <code>/me</code> &amp; live sync). Country preset: Tunisia.</p>
   </div>
-  <div class="meta"><span>16 / 11 / 2026</span><span>FR · EN · AR</span></div>
+  <div class="meta"><span>18 / 11 / 2026</span><span>FR · EN · AR</span></div>
 </section>
 
 <!-- ============================== FRANÇAIS ============================== -->
 <section class="lang" lang="fr">
   <div class="lang-head"><h1>Manuel d'utilisation</h1><span class="tag">Français</span></div>
-  <p>Ce manuel explique, depuis zéro, comment installer l'application de gestion des congés sur votre ordinateur, la configurer et l'utiliser au quotidien. Il couvre les étapes 1 à 4 : l'espace RH complet. Le portail salarié (<code>/me</code>) arrivera à l'étape 5.</p>
+  <p>Ce manuel explique, depuis zéro, comment installer l'application de gestion des congés sur votre ordinateur, la configurer et l'utiliser au quotidien. Il couvre les étapes 1 à 5 : l'espace RH complet et le portail salarié (<code>/me</code>, chapitre 14).</p>
   <ol class="toc">
     <li>Ce que fait l'application</li><li>Installation depuis zéro</li><li>Première connexion et sécurité</li><li>Tour de l'écran</li>
     <li>Configurer (Paramètres)</li><li>Ajouter les salariés</li><li>Donner des jours : acquisition et soldes</li><li>Saisir un congé en 10 secondes</li>
     <li>Décider : approuver, refuser, modifier</li><li>Le planning et les chiffres clés</li><li>Rapports et exports paie</li><li>Raccourcis clavier</li>
-    <li>Comprendre les soldes</li><li>Problèmes fréquents</li>
+    <li>Comprendre les soldes</li><li>Le portail salarié</li><li>Problèmes fréquents</li>
   </ol>
 
   <h2>1. Ce que fait l'application</h2>
@@ -129,7 +130,7 @@ SEED_LOCALE=fr</pre>
   <pre>pnpm --filter @leave/server db:create
 pnpm --filter @leave/server db:migrate
 pnpm --filter @leave/server db:seed</pre>
-  <p><code>db:create</code> crée la base <code>leave</code>, <code>db:migrate</code> crée les tables, <code>db:seed</code> ajoute les types de congé par défaut, une liste de jours fériés provisoire et le compte RH défini dans <code>.env</code>. Ces commandes peuvent être relancées sans risque.</p>
+  <p><code>db:create</code> crée la base <code>leave</code>, <code>db:migrate</code> crée les tables, <code>db:seed</code> ajoute les types de congé par défaut, les jours fériés tunisiens, une règle de congé payé de 22 jours par an et le compte RH défini dans <code>.env</code>. Ces commandes peuvent être relancées sans risque.</p>
   <h3>2.5 Lancer l'application</h3>
   <pre>pnpm dev</pre>
   <p>Attendez les lignes <code>Leave app listening on http://localhost:3000</code> et <code>Local: http://localhost:5173/</code>, puis ouvrez <b>http://localhost:5173</b> dans votre navigateur. Pour arrêter : <kbd>Ctrl</kbd>+<kbd>C</kbd> dans le terminal.</p>
@@ -167,16 +168,17 @@ pnpm --filter @leave/server db:seed</pre>
     <li><span class="ui">Autoriser un solde négatif</span> et sa <span class="ui">Limite négative (jours)</span>. Désactivé : un congé qui rendrait le solde négatif est bloqué.</li>
     <li><span class="ui">Statut par défaut à l'enregistrement</span> : Approuvé (recommandé) ou En attente.</li>
     <li><span class="ui">Langue et région</span> : formats des dates et des nombres dans les exports et les e-mails.</li>
-    <li><span class="ui">Visibilité de l'équipe dans le portail</span> : servira à l'étape 5.</li>
+    <li><span class="ui">Visibilité de l'équipe dans le portail</span> : ce que chaque salarié voit des absences de ses collègues : <span class="ui">Son service</span> (par défaut), <span class="ui">Toute l'entreprise</span> ou <span class="ui">Désactivée</span> (l'onglet Équipe disparaît). Voir chapitre 14.</li>
     <li><span class="ui">Services</span> : ajouter, renommer, ordonner ; un service ne peut être supprimé que s'il est vide.</li>
   </ul>
-  <div class="note"><b>À noter :</b> le préréglage pays est provisoire. Les jours fériés et le taux d'acquisition doivent être vérifiés selon votre code du travail.</div>
+  <div class="note"><b>À noter :</b> le préréglage pays est la <b>Tunisie</b>. Les 22 jours par an de congé payé sont une valeur par défaut modifiable, pas une règle légale : vérifiez-la selon le Code du travail et votre convention collective.</div>
   <h3>5.2 Types de congé</h3>
   <p>Cinq types sont créés : congé payé, maladie, sans solde, congé exceptionnel, repos compensateur. Pour chacun : nom, couleur, <span class="ui">Payé</span>, <span class="ui">Déduit du solde</span>, <span class="ui">Jours ouvrés / Jours calendaires</span>, <span class="ui">Justificatif obligatoire</span>, plafond annuel, statut par défaut. Un type n'est jamais supprimé : désactivez-le.</p>
   <h3>5.3 Acquisition</h3>
-  <p>Pour chaque type qui se déduit du solde, définissez la règle : <span class="ui">Annuel</span> (un droit par année de congés) ou <span class="ui">Mensuel</span> (par exemple 2,5 jours par mois), et <span class="ui">Proratiser le mois d'embauche</span>. À l'enregistrement, l'application demande : <span class="ui">À partir d'aujourd'hui</span> ou <span class="ui">Dès le début de l'année de congés</span>. L'historique des règles est conservé.</p>
+  <p>Pour chaque type qui se déduit du solde, saisissez les <span class="ui">Jours par année de congés</span> (par exemple <b>22</b>) et choisissez le mode : <span class="ui">Annuel</span> (les 22 jours sont donnés d'un coup au début de l'année de congés) ou <span class="ui">Mensuel</span> (ils sont gagnés mois par mois). Cochez <span class="ui">Proratiser le mois d'embauche</span> pour qu'un salarié arrivé en cours de mois ne gagne que les jours travaillés. À l'enregistrement, l'application demande : <span class="ui">À partir d'aujourd'hui</span> ou <span class="ui">Dès le début de l'année de congés</span>. L'historique des règles est conservé.</p>
+  <p>En mode <span class="ui">Mensuel</span>, 22 jours par an font environ 1,83 jour par mois (≈ 0,06 par jour sur un mois de 30 jours). Comme les soldes comptent par demi-journée, les mois sont crédités 2 ; 1,5 ; 2 ; 2 ; 1,5… et le total de l'année est <b>exactement 22</b> : le reste d'un mois est reporté au suivant, rien n'est perdu. La colonne <span class="ui">Droits annuels</span> d'un salarié remplace les 22 jours pour lui seul.</p>
   <h3>5.4 Jours fériés</h3>
-  <p>La liste fournie est provisoire (1er janvier, 1er mai) : ajoutez vos jours fériés nationaux avec <span class="ui">Ajouter un jour férié</span>. Options : demi-journée, <span class="ui">Date à confirmer</span> pour les fêtes mobiles, source <span class="ui">Fermeture</span> pour une fermeture d'entreprise.</p>
+  <p>Les jours fériés tunisiens sont fournis : 1er janvier, 20 mars (Indépendance), 9 avril (Martyrs), 1er mai, 25 juillet (République), 13 août (Femme), 15 octobre (Évacuation), 17 décembre (Révolution). Les fêtes religieuses (Aïd el-Fitr, Aïd el-Idha, Ras el-Am el-Hijri, Mouled) suivent le calendrier lunaire : leurs dates sont estimées et marquées <span class="ui">Date à confirmer</span>. Corrigez-les dès l'annonce officielle. <span class="ui">Ajouter un jour férié</span> permet aussi une demi-journée ou une <span class="ui">Fermeture</span> d'entreprise.</p>
   <p>Si un changement touche des congés déjà saisis, une fenêtre les liste avec l'ancien et le nouveau nombre de jours. Cliquez <span class="ui">Recalculer ces congés</span> pour corriger les jours et les soldes, ou <span class="ui">Pas maintenant</span>.</p>
 
   <h2>6. Ajouter les salariés</h2>
@@ -188,8 +190,8 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>Fiche salarié</b> (clic sur le nom) : cartes de solde, <span class="ui">Historique des congés</span>, <span class="ui">Journal des soldes</span> par type, avec le solde courant après chaque écriture.</li>
     <li><b>Archiver</b> au départ d'un salarié : il disparaît du planning mais reste dans les exports passés. <span class="ui">Restaurer</span> l'annule.</li>
   </ul>
-  <h3>Accès au portail (préparation de l'étape 5)</h3>
-  <p>Le menu de chaque ligne propose : <span class="ui">Envoyer l'invitation</span> (e-mail avec un lien valable 48 h pour choisir son mot de passe), <span class="ui">Mot de passe temporaire</span> pour un salarié sans e-mail (affiché une seule fois, connexion avec son code salarié, changement obligatoire), <span class="ui">Activer / Désactiver l'accès au portail</span>, <span class="ui">Déconnecter partout</span>.</p>
+  <h3>Accès au portail</h3>
+  <p>Le menu de chaque ligne propose : <span class="ui">Envoyer l'invitation</span> (e-mail avec un lien valable 48 h pour choisir son mot de passe), <span class="ui">Mot de passe temporaire</span> pour un salarié sans e-mail (affiché une seule fois, connexion avec son code salarié, changement obligatoire), <span class="ui">Activer / Désactiver l'accès au portail</span>, <span class="ui">Déconnecter partout</span>. Archiver un salarié ou désactiver son accès le déconnecte aussitôt de tous ses appareils. Mode d'emploi du portail : chapitre 14.</p>
 
   <h2>7. Donner des jours : acquisition et soldes</h2>
   <p>Un nouveau salarié démarre à 0. Deux façons de lui donner des jours :</p>
@@ -197,7 +199,8 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>Acquisition mensuelle</b> : <span class="ui">Paramètres → Acquisition → Lancer l'acquisition</span>. Choisissez le mois, cliquez <span class="ui">Aperçu</span> (liste des salariés, types et jours), puis <span class="ui">Lancer l'acquisition de …</span> et confirmez. À faire chaque début de mois. Relancer le même mois n'ajoute rien : les lignes « Déjà fait » sont ignorées.</li>
     <li><b>Ajustement manuel</b> : fiche salarié → <span class="ui">Ajuster le solde</span> : type, jours (+ ou −, par demi-journée), <span class="ui">Date d'effet</span>, <span class="ui">Note (obligatoire)</span> → <span class="ui">Appliquer l'ajustement</span>.</li>
   </ol>
-  <p class="muted">Les montants proratisés (embauche ou départ en cours de mois) sont arrondis à la demi-journée la plus proche.</p>
+  <p class="muted">Arrondi : le total gagné depuis le début de l'année de congés est arrondi à la demi-journée la plus proche, et chaque mois reçoit la différence. Exemple : embauché le 16 novembre (30 jours), il gagne 15 × 0,06 ≈ 0,92 jour → 1 jour crédité en novembre, puis 2 en décembre.</p>
+  <div class="warn"><b>Mise à jour depuis une version précédente :</b> la règle se saisit désormais en jours <b>par an</b>. Ouvrez <span class="ui">Paramètres → Acquisition</span>, saisissez 22, enregistrez et choisissez <span class="ui">Dès le début de l'année de congés</span>. Les mois déjà crédités à l'ancien taux ne sont pas modifiés : corrigez l'écart par un ajustement manuel si besoin.</div>
 
   <h2>8. Saisir un congé en 10 secondes</h2>
   <p>Ouvrez le formulaire avec <kbd>C</kbd>, le bouton <span class="ui">+ Saisir un congé</span>, ou un clic sur une case vide du planning (salarié et date déjà remplis).</p>
@@ -210,6 +213,7 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>Enregistrez :</b> <kbd>Ctrl</kbd>+<kbd>Entrée</kbd> (statut par défaut) ou <kbd>Maj</kbd>+<kbd>Ctrl</kbd>+<kbd>Entrée</kbd> (en attente). Un bandeau <span class="ui">Annuler</span> reste 6 secondes.</li>
   </ol>
   <p>Facultatif : note, et pièce jointe (glisser, coller ou choisir un PDF, JPG ou PNG de 10 Mo max). Un trombone signale un justificatif obligatoire manquant.</p>
+  <p class="muted">Si vous quittez le formulaire avec des modifications non enregistrées (<kbd>Échap</kbd>, bouton Retour du navigateur, un lien du menu), l'application demande confirmation avant de les abandonner.</p>
   <h3>Le bandeau de conflits</h3>
   <table>
     <tr><th>Contrôle</th><th>Effet</th></tr>
@@ -277,7 +281,56 @@ pnpm --filter @leave/server db:seed</pre>
     <li>À la saisie, le contrôle tient aussi compte des congés déjà approuvés plus tard dans l'année, pour ne pas dépenser deux fois les mêmes jours. L'aperçu peut donc être plus bas que le chiffre du tableau des salariés.</li>
   </ul>
 
-  <h2>14. Problèmes fréquents</h2>
+  <h2>14. Le portail salarié</h2>
+  <p>Chaque salarié a son propre espace, pensé pour le téléphone : il consulte ses soldes et demande un congé en 15 secondes. Il ne voit que ses propres données ; de ses collègues, il voit seulement qui est absent et quand.</p>
+  <h3>14.1 Donner l'accès (côté RH)</h3>
+  <ol>
+    <li>Menu <span class="ui">Salariés</span>, menu de la ligne du salarié.</li>
+    <li>Salarié avec e-mail : <span class="ui">Envoyer l'invitation</span>. Il reçoit un lien valable 48 h, choisit son mot de passe et arrive dans son espace.</li>
+    <li>Salarié sans e-mail : <span class="ui">Mot de passe temporaire</span>. Notez l'<span class="ui">Identifiant de connexion</span> (son code salarié) et le mot de passe, affichés une seule fois, et remettez-les-lui. Il devra choisir son propre mot de passe à la première connexion.</li>
+  </ol>
+  <p>Adresse du portail : <b>http://localhost:5173/me</b> en local, ou <code>https://votre-domaine/me</code> une fois en ligne. Sur ordinateur, il s'affiche en colonne centrale.</p>
+  <h3>14.2 Se connecter (côté salarié)</h3>
+  <ul>
+    <li>Page <span class="ui">Mon espace congés</span> : <span class="ui">E-mail ou code salarié</span>, mot de passe, <span class="ui">Se connecter</span>. Mêmes règles que pour les RH : 8 caractères minimum, verrouillage 15 minutes après 5 erreurs, <span class="ui">Rester connecté</span> 30 jours.</li>
+    <li>Mot de passe oublié : <span class="ui">Mot de passe oublié ?</span> si le salarié a un e-mail ; sinon, il demande un nouveau mot de passe temporaire aux RH.</li>
+    <li>La roue dentée en haut à droite ouvre les <span class="ui">Réglages</span> : <span class="ui">Langue</span>, <span class="ui">Changer mon mot de passe</span>, <span class="ui">Se déconnecter</span>.</li>
+  </ul>
+  <h3>14.3 Les trois onglets</h3>
+  <table>
+    <tr><th>Onglet</th><th>Contenu</th></tr>
+    <tr><td><span class="ui">Accueil</span></td><td><span class="ui">Vos soldes</span> : une carte par type, avec le disponible en grand et « pris · en attente » dessous ; toucher une carte affiche l'historique du solde. Puis la dernière décision des RH (« Bonne nouvelle ! Votre congé payé … est approuvé »), les <span class="ui">Demandes en attente</span>, ce qui est <span class="ui">À venir</span> et les <span class="ui">Prochains jours fériés</span>.</td></tr>
+    <tr><td><span class="ui">Mes congés</span></td><td>Tout l'historique, par année. Le motif d'un refus y est affiché. Marqueurs <span class="ui">Ajouté par les RH</span> et <span class="ui">Modifié par les RH</span> quand les RH ont saisi ou changé un congé.</td></tr>
+    <tr><td><span class="ui">Équipe</span></td><td>Qui est absent <span class="ui">Cette semaine</span> et la <span class="ui">Semaine prochaine</span> (son service ou toute l'entreprise, selon le réglage). Seulement le nom et les dates : jamais le type de congé, la note ou le justificatif.</td></tr>
+  </table>
+  <h3>14.4 Demander un congé</h3>
+  <ol>
+    <li>Bouton <span class="ui">Demander un congé</span>.</li>
+    <li>Choisir le type, puis toucher le premier et le dernier jour dans le calendrier ; matin ou après-midi si besoin.</li>
+    <li>Vérifier le nombre de jours, le solde après la demande, et la ligne des collègues absents (« 2 sur 5 en Logistique absents… »).</li>
+    <li>Facultatif : <span class="ui">Ajouter une note</span>, <span class="ui">Ajouter un document ou une photo</span> (l'appareil photo du téléphone fonctionne).</li>
+    <li><span class="ui">Envoyer la demande</span>. Un bandeau <span class="ui">Annuler</span> reste 6 secondes.</li>
+  </ol>
+  <table>
+    <tr><th>Situation</th><th>Ce qui se passe</th></tr>
+    <tr><td>Chevauche un de ses congés, aucun jour ouvré, hors contrat</td><td><b style="color:var(--bad)">Bloqué</b>, avec la raison</td></tr>
+    <tr><td>Dépasse le solde disponible</td><td>Bloqué si le solde négatif n'est pas autorisé ; sinon il faut cocher « Je comprends que cela met mon solde en dessous de zéro »</td></tr>
+    <tr><td>Maladie sans certificat</td><td>Accepté, avec « Certificat attendu : vous pourrez l'envoyer plus tard »</td></tr>
+    <tr><td>Autre type exigeant un justificatif, sans document</td><td><b style="color:var(--bad)">Bloqué</b></td></tr>
+    <tr><td>Collègues absents</td><td>Simple information</td></tr>
+    <tr><td>Pas de connexion</td><td>La demande (et son document) est gardée sur le téléphone, marquée « Envoi… », et part toute seule au retour du réseau</td></tr>
+  </table>
+  <h3>14.5 Retirer une demande</h3>
+  <p>Tant qu'elle est <span class="pill p-pending">En attente</span>, une demande peut être retirée avec <span class="ui">Retirer</span>, sans confirmation : <span class="ui">Annuler</span> la remet en attente pendant 6 secondes. Si les RH ont déjà décidé, le retrait est refusé (« Les RH ont déjà statué sur cette demande »). Un congé approuvé ne se modifie pas depuis le portail : il faut contacter les RH.</p>
+  <h3>14.6 Synchronisation en direct</h3>
+  <ul>
+    <li>Une demande envoyée apparaît chez les RH en 2 secondes environ : le chiffre <span class="ui">Demandes en attente</span> augmente, une barre hachurée s'affiche et la demande porte le marqueur <span class="ui">Via le portail</span>.</li>
+    <li>Quand les RH approuvent ou refusent, l'écran du salarié se met à jour tout seul, solde compris. Un e-mail est aussi envoyé : il ne contient que les dates et la décision ; le type et le motif ne sont visibles qu'après connexion.</li>
+    <li>Si la connexion en direct est coupée, les écrans se rafraîchissent quand même toutes les 30 secondes.</li>
+  </ul>
+  <div class="tip"><b>Téléphone partagé :</b> se déconnecter efface du téléphone les demandes en attente d'envoi. Si une autre personne se connecte sur le même appareil, elle ne voit et n'envoie jamais les demandes du salarié précédent.</div>
+
+  <h2>15. Problèmes fréquents</h2>
   <table>
     <tr><th>Symptôme</th><th>Solution</th></tr>
     <tr><td>« API injoignable » ou page blanche</td><td>Vérifiez que <code>pnpm dev</code> tourne et affiche les deux lignes de démarrage.</td></tr>
@@ -287,18 +340,21 @@ pnpm --filter @leave/server db:seed</pre>
     <tr><td>Tous les soldes sont à 0</td><td>Lancez l'acquisition du mois, ou faites un ajustement manuel.</td></tr>
     <tr><td>Les e-mails n'arrivent pas</td><td>Sans réglages SMTP, ils s'affichent dans le terminal de <code>pnpm dev</code>. Pour l'envoi réel, renseignez <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>, <code>MAIL_FROM</code> (Brevo).</td></tr>
     <tr><td>Un jour férié ajouté n'a pas changé un congé</td><td>Rouvrez le jour férié et cliquez <span class="ui">Recalculer ces congés</span>.</td></tr>
+    <tr><td>Un salarié ne peut pas se connecter au portail</td><td>Vérifiez que son accès est actif (menu de sa ligne). Lien d'invitation expiré (48 h) : renvoyez l'invitation. Sans e-mail : donnez-lui un nouveau mot de passe temporaire.</td></tr>
+    <tr><td>Le salarié ne voit pas l'onglet Équipe</td><td><span class="ui">Visibilité de l'équipe dans le portail</span> est sur <span class="ui">Désactivée</span>.</td></tr>
+    <tr><td>Une demande reste sur « Envoi… »</td><td>Le téléphone est hors ligne : elle partira au retour du réseau. <span class="ui">Annuler cette demande</span> la supprime.</td></tr>
   </table>
 </section>
 
 <!-- ============================== ENGLISH ============================== -->
 <section class="lang" lang="en">
   <div class="lang-head"><h1>User manual</h1><span class="tag">English</span></div>
-  <p>This manual explains, from zero, how to install the leave management app on your computer, set it up and use it every day. It covers steps 1 to 4: the complete HR workspace. The employee portal (<code>/me</code>) arrives in step 5. Screen labels are quoted as they appear when the interface is set to English.</p>
+  <p>This manual explains, from zero, how to install the leave management app on your computer, set it up and use it every day. It covers steps 1 to 5: the complete HR workspace and the employee portal (<code>/me</code>, chapter 14). Screen labels are quoted as they appear when the interface is set to English.</p>
   <ol class="toc">
     <li>What the app does</li><li>Installing from zero</li><li>First sign-in and security</li><li>Screen tour</li>
     <li>Set-up (Settings)</li><li>Adding employees</li><li>Giving days: accrual and balances</li><li>Logging a leave in 10 seconds</li>
     <li>Deciding: approve, reject, edit</li><li>Timeline and key figures</li><li>Reports and payroll exports</li><li>Keyboard shortcuts</li>
-    <li>Understanding balances</li><li>Troubleshooting</li>
+    <li>Understanding balances</li><li>The employee portal</li><li>Troubleshooting</li>
   </ol>
 
   <h2>1. What the app does</h2>
@@ -343,7 +399,7 @@ SEED_LOCALE=en</pre>
   <pre>pnpm --filter @leave/server db:create
 pnpm --filter @leave/server db:migrate
 pnpm --filter @leave/server db:seed</pre>
-  <p><code>db:create</code> creates the <code>leave</code> database, <code>db:migrate</code> creates the tables, <code>db:seed</code> adds the default leave types, a placeholder holiday list and the HR account defined in <code>.env</code>. These commands are safe to run again.</p>
+  <p><code>db:create</code> creates the <code>leave</code> database, <code>db:migrate</code> creates the tables, <code>db:seed</code> adds the default leave types, the Tunisian public holidays, a paid-leave rule of 22 days a year and the HR account defined in <code>.env</code>. These commands are safe to run again.</p>
   <h3>2.5 Start the app</h3>
   <pre>pnpm dev</pre>
   <p>Wait for <code>Leave app listening on http://localhost:3000</code> and <code>Local: http://localhost:5173/</code>, then open <b>http://localhost:5173</b> in your browser. To stop: <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal.</p>
@@ -381,16 +437,17 @@ pnpm --filter @leave/server db:seed</pre>
     <li><span class="ui">Allow a negative balance</span> and its <span class="ui">Negative limit (days)</span>. When off, a leave that would make the balance negative is blocked.</li>
     <li><span class="ui">Default status on save</span>: Approved (recommended) or Pending.</li>
     <li><span class="ui">Locale</span>: date and number formats in exports and emails.</li>
-    <li><span class="ui">Team visibility in the portal</span>: used in step 5.</li>
+    <li><span class="ui">Team visibility in the portal</span>: what each employee sees of colleagues' absences: their department (default), the whole company, or off (the Team tab disappears). See chapter 14.</li>
     <li><span class="ui">Departments</span>: add, rename, order; a department can only be deleted when empty.</li>
   </ul>
-  <div class="note"><b>Note:</b> the country preset is a placeholder. Public holidays and the accrual rate must be checked against your labour code.</div>
+  <div class="note"><b>Note:</b> the country preset is <b>Tunisia</b>. The 22 days of paid leave a year are an editable default, not a legal rule: check them against the Labour Code and your collective agreement.</div>
   <h3>5.2 Leave types</h3>
   <p>Five types are created: paid leave, sick leave, unpaid leave, special leave, compensatory rest. For each: name, colour, <span class="ui">Paid</span>, <span class="ui">Deducts from the balance</span>, <span class="ui">Working days / Calendar days</span>, <span class="ui">Attachment required</span>, annual cap, default status. Types are never deleted: deactivate them instead.</p>
   <h3>5.3 Accrual</h3>
-  <p>For each type that deducts from the balance, set the rule: <span class="ui">Annual</span> (one grant per leave year) or <span class="ui">Monthly</span> (for example 2.5 days per month), and <span class="ui">Prorate the hire month</span>. When you save, the app asks: <span class="ui">From today</span> or <span class="ui">From the start of the leave year</span>. Rule history is kept.</p>
+  <p>For each type that deducts from the balance, enter the <span class="ui">Days per leave year</span> (for example <b>22</b>) and choose the mode: <span class="ui">Annual</span> (all 22 days granted at the start of the leave year) or <span class="ui">Monthly</span> (earned month by month). Tick <span class="ui">Prorate the hire month</span> so someone who joins mid-month only earns the days they worked. When you save, the app asks: <span class="ui">From today</span> or <span class="ui">From the start of the leave year</span>. Rule history is kept.</p>
+  <p>In <span class="ui">Monthly</span> mode, 22 days a year is about 1.83 days a month (≈ 0.06 a day in a 30-day month). Balances count in half days, so months are credited 2, 1.5, 2, 2, 1.5… and the year totals <b>exactly 22</b>: each month's remainder carries to the next, nothing is lost. An employee's <span class="ui">Allowance</span> column replaces the 22 days for that person only.</p>
   <h3>5.4 Public holidays</h3>
-  <p>The supplied list is a placeholder (1 January, 1 May): add your national holidays with <span class="ui">Add holiday</span>. Options: half day, <span class="ui">Date to confirm</span> for movable holidays, source <span class="ui">Closure</span> for a company closure.</p>
+  <p>The Tunisian public holidays are supplied: 1 January, 20 March (Independence), 9 April (Martyrs), 1 May, 25 July (Republic), 13 August (Women's Day), 15 October (Evacuation), 17 December (Revolution). Religious holidays (Eid al-Fitr, Eid al-Adha, Islamic New Year, Prophet's Birthday) follow the lunar calendar: their dates are estimates marked <span class="ui">Date to confirm</span>. Correct them as soon as the official date is announced. <span class="ui">Add holiday</span> also handles half days and company <span class="ui">Closure</span> days.</p>
   <p>If a change affects leaves already logged, a dialog lists them with the old and new number of days. Click <span class="ui">Recalculate these leaves</span> to fix the days and balances, or <span class="ui">Not now</span>.</p>
 
   <h2>6. Adding employees</h2>
@@ -402,8 +459,8 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>Employee drawer</b> (click the name): balance cards, <span class="ui">Leave history</span>, and the <span class="ui">Ledger</span> per type with the running balance after each entry.</li>
     <li><b>Archive</b> someone who leaves: they disappear from the timeline but stay in past exports. <span class="ui">Restore</span> undoes it.</li>
   </ul>
-  <h3>Portal access (getting ready for step 5)</h3>
-  <p>Each row's menu offers <span class="ui">Send invitation</span> (an email with a link valid 48 h to choose a password), <span class="ui">Temporary password</span> for an employee without email (shown once; they sign in with their employee code and must change it), <span class="ui">Enable / Disable portal access</span>, and <span class="ui">Sign out everywhere</span>.</p>
+  <h3>Portal access</h3>
+  <p>Each row's menu offers <span class="ui">Send invitation</span> (an email with a link valid 48 h to choose a password), <span class="ui">Temporary password</span> for an employee without email (shown once; they sign in with their employee code and must change it), <span class="ui">Enable / Disable portal access</span>, and <span class="ui">Sign out everywhere</span>. Archiving an employee or disabling their access signs them out of every device at once. How the portal works: chapter 14.</p>
 
   <h2>7. Giving days: accrual and balances</h2>
   <p>A new employee starts at 0. There are two ways to give days:</p>
@@ -411,7 +468,8 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>Monthly accrual:</b> <span class="ui">Settings → Accrual → Run accrual</span>. Choose the month, click <span class="ui">Preview</span> (employees, types and days), then <span class="ui">Run accrual for …</span> and confirm. Do this at the start of every month. Running the same month again adds nothing: "Already done" rows are skipped.</li>
     <li><b>Manual adjustment:</b> employee drawer → <span class="ui">Adjust balance</span>: type, days (+ or −, in half days), <span class="ui">Effective date</span>, <span class="ui">Note (required)</span> → <span class="ui">Apply adjustment</span>.</li>
   </ol>
-  <p class="muted">Prorated amounts (hiring or leaving mid-month) are rounded to the nearest half day.</p>
+  <p class="muted">Rounding: the total earned since the start of the leave year is rounded to the nearest half day, and each month receives the difference. Example: hired on 16 November (30 days), they earn 15 × 0.06 ≈ 0.92 day → 1 day credited in November, then 2 in December.</p>
+  <div class="warn"><b>Upgrading from an earlier version:</b> the rule is now entered in days <b>per year</b>. Open <span class="ui">Settings → Accrual</span>, enter 22, save and choose <span class="ui">From the start of the leave year</span>. Months already credited at the old rate are not changed: fix any gap with a manual adjustment.</div>
 
   <h2>8. Logging a leave in 10 seconds</h2>
   <p>Open the form with <kbd>C</kbd>, the <span class="ui">+ Log leave</span> button, or a click on an empty timeline cell (employee and date already filled in).</p>
@@ -424,6 +482,7 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>Save:</b> <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (default status) or <kbd>Shift</kbd>+<kbd>Ctrl</kbd>+<kbd>Enter</kbd> (pending). An <span class="ui">Undo</span> toast stays for 6 seconds.</li>
   </ol>
   <p>Optional: a note, and an attachment (drop, paste or choose a PDF, JPG or PNG up to 10 MB). A paperclip flags a required document that is missing.</p>
+  <p class="muted">If you leave the form with unsaved changes (<kbd>Esc</kbd>, the browser's Back button, a menu link), the app asks before discarding them.</p>
   <h3>The conflict strip</h3>
   <table>
     <tr><th>Check</th><th>Effect</th></tr>
@@ -491,7 +550,56 @@ pnpm --filter @leave/server db:seed</pre>
     <li>When you log a leave, the check also counts leave already approved later in the year, so the same days can't be spent twice. The preview can therefore be lower than the figure in the employees table.</li>
   </ul>
 
-  <h2>14. Troubleshooting</h2>
+  <h2>14. The employee portal</h2>
+  <p>Each employee has their own space, designed for the phone: they check their balances and request leave in 15 seconds. They only see their own data; of their colleagues they only see who is away and when.</p>
+  <h3>14.1 Giving access (HR side)</h3>
+  <ol>
+    <li>Menu <span class="ui">Employees</span>, then the menu on the employee's row.</li>
+    <li>Employee with an email: <span class="ui">Send invitation</span>. They get a link valid for 48 h, choose a password and land in their space.</li>
+    <li>Employee without an email: <span class="ui">Temporary password</span>. Note the <span class="ui">Sign in with</span> value (their employee code) and the password, shown once, and hand them over. They must choose their own password at first sign-in.</li>
+  </ol>
+  <p>Portal address: <b>http://localhost:5173/me</b> locally, or <code>https://your-domain/me</code> once online. On a computer it shows as a centred column.</p>
+  <h3>14.2 Signing in (employee side)</h3>
+  <ul>
+    <li><span class="ui">My leave</span> page: <span class="ui">Email or employee code</span>, password, <span class="ui">Sign in</span>. Same rules as HR: at least 8 characters, 15-minute lock after 5 errors, <span class="ui">Keep me signed in</span> for 30 days.</li>
+    <li>Forgotten password: <span class="ui">Forgot password?</span> when the employee has an email; otherwise they ask HR for a new temporary password.</li>
+    <li>The gear icon at the top right opens <span class="ui">Settings</span>: <span class="ui">Language</span>, <span class="ui">Change my password</span>, <span class="ui">Sign out</span>.</li>
+  </ul>
+  <h3>14.3 The three tabs</h3>
+  <table>
+    <tr><th>Tab</th><th>Content</th></tr>
+    <tr><td><span class="ui">Home</span></td><td><span class="ui">Your balances</span>: one card per type, the available figure large and "taken · pending" below; tapping a card shows the balance history. Then HR's latest decision ("Good news! Your paid leave … is approved"), <span class="ui">Pending requests</span>, what is <span class="ui">Coming up</span> and the <span class="ui">Next public holidays</span>.</td></tr>
+    <tr><td><span class="ui">My leaves</span></td><td>The full history by year, including the reason for a refusal. <span class="ui">Added by HR</span> and <span class="ui">Changed by HR</span> markers show when HR logged or changed a leave.</td></tr>
+    <tr><td><span class="ui">Team</span></td><td>Who is away <span class="ui">This week</span> and <span class="ui">Next week</span> (their department or the whole company, depending on the setting). Name and dates only: never the leave type, note or document.</td></tr>
+  </table>
+  <h3>14.4 Requesting leave</h3>
+  <ol>
+    <li><span class="ui">Request leave</span> button.</li>
+    <li>Pick the type, then tap the first and last day in the calendar; morning or afternoon if needed.</li>
+    <li>Check the number of days, the balance after the request, and the line of colleagues away ("2 of 5 in Logistics away…").</li>
+    <li>Optional: <span class="ui">Add a note</span>, <span class="ui">Add a document or photo</span> (the phone camera works).</li>
+    <li><span class="ui">Submit request</span>. An <span class="ui">Undo</span> banner stays for 6 seconds.</li>
+  </ol>
+  <table>
+    <tr><th>Situation</th><th>What happens</th></tr>
+    <tr><td>Overlaps one of their own leaves, no working days, outside their contract</td><td><b style="color:var(--bad)">Blocked</b>, with the reason</td></tr>
+    <tr><td>More than the available balance</td><td>Blocked if negative balances are off; otherwise they must tick "I understand this takes my balance below zero"</td></tr>
+    <tr><td>Sick leave without a certificate</td><td>Accepted, with "Certificate expected: you can send it later"</td></tr>
+    <tr><td>Another type that requires a document, sent without one</td><td><b style="color:var(--bad)">Blocked</b></td></tr>
+    <tr><td>Colleagues away</td><td>Information only</td></tr>
+    <tr><td>No connection</td><td>The request (and its document) is kept on the phone, shown as "Sending…", and goes out by itself when the network is back</td></tr>
+  </table>
+  <h3>14.5 Withdrawing a request</h3>
+  <p>While it is <span class="pill p-pending">Pending</span>, a request can be withdrawn with <span class="ui">Withdraw</span>, with no confirmation: <span class="ui">Undo</span> puts it back to pending for 6 seconds. If HR has already decided, the withdrawal is refused ("HR already decided on this request"). An approved leave cannot be changed from the portal: the employee contacts HR.</p>
+  <h3>14.6 Live sync</h3>
+  <ul>
+    <li>A submitted request appears on the HR screen within about 2 seconds: the <span class="ui">Pending requests</span> figure goes up, a hatched bar appears and the request carries the <span class="ui">From portal</span> marker.</li>
+    <li>When HR approves or rejects, the employee's screen updates by itself, balance included. An email is also sent: it only contains the dates and the decision; the type and the reason are visible after signing in.</li>
+    <li>If the live connection drops, screens still refresh every 30 seconds.</li>
+  </ul>
+  <div class="tip"><b>Shared phone:</b> signing out removes any requests waiting to be sent from the phone. If someone else signs in on the same device, they never see or send the previous employee's requests.</div>
+
+  <h2>15. Troubleshooting</h2>
   <table>
     <tr><th>Symptom</th><th>Fix</th></tr>
     <tr><td>"API unreachable" or a blank page</td><td>Check that <code>pnpm dev</code> is running and shows both start-up lines.</td></tr>
@@ -501,19 +609,22 @@ pnpm --filter @leave/server db:seed</pre>
     <tr><td>All balances are 0</td><td>Run the month's accrual, or make a manual adjustment.</td></tr>
     <tr><td>Emails don't arrive</td><td>Without SMTP settings they are printed in the <code>pnpm dev</code> terminal. For real sending, set <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>, <code>MAIL_FROM</code> (Brevo).</td></tr>
     <tr><td>A new holiday didn't change a leave</td><td>Reopen the holiday and click <span class="ui">Recalculate these leaves</span>.</td></tr>
+    <tr><td>An employee can't sign in to the portal</td><td>Check that their access is enabled (menu on their row). Invitation link expired (48 h): send it again. No email: give them a new temporary password.</td></tr>
+    <tr><td>The employee doesn't see the Team tab</td><td><span class="ui">Team visibility in the portal</span> is set to off.</td></tr>
+    <tr><td>A request stays on "Sending…"</td><td>The phone is offline: it will go out when the network is back. <span class="ui">Cancel this request</span> deletes it.</td></tr>
   </table>
 </section>
 
 <!-- ============================== العربية ============================== -->
 <section class="lang" lang="ar" dir="rtl">
   <div class="lang-head"><h1>دليل الاستخدام</h1><span class="tag">العربية</span></div>
-  <p>يشرح هذا الدليل، من الصفر، كيفية تثبيت تطبيق إدارة الإجازات على حاسوبك وإعداده واستخدامه يوميًا. وهو يغطي المراحل من 1 إلى 4، أي فضاء الموارد البشرية كاملًا. أما بوابة الموظفين (<code class="ltr">⁦/me⁩</code>) فستأتي في المرحلة 5.</p>
+  <p>يشرح هذا الدليل، من الصفر، كيفية تثبيت تطبيق إدارة الإجازات على حاسوبك وإعداده واستخدامه يوميًا. وهو يغطي المراحل من 1 إلى 5: فضاء الموارد البشرية كاملًا وبوابة الموظفين (<code class="ltr">⁦/me⁩</code>، الفصل 14).</p>
   <div class="note"><b>ملاحظة حول الواجهة:</b> واجهة التطبيق متوفرة حاليًا بالفرنسية والإنجليزية فقط. لذلك تُذكر أسماء الأزرار والقوائم في هذا الدليل بالفرنسية كما تظهر على الشاشة، مثل <span class="ui" dir="ltr">⁦Paramètres⁩</span> (الإعدادات).</div>
   <ol class="toc">
     <li>ماذا يفعل التطبيق</li><li>التثبيت من الصفر</li><li>تسجيل الدخول الأول والأمان</li><li>جولة في الشاشة</li>
     <li>الإعداد (الإعدادات)</li><li>إضافة الموظفين</li><li>منح الأيام: الاكتساب والأرصدة</li><li>تسجيل إجازة في 10 ثوانٍ</li>
     <li>اتخاذ القرار: قبول، رفض، تعديل</li><li>المخطط الزمني والأرقام الرئيسية</li><li>التقارير وتصدير الرواتب</li><li>اختصارات لوحة المفاتيح</li>
-    <li>فهم الأرصدة</li><li>حل المشكلات الشائعة</li>
+    <li>فهم الأرصدة</li><li>بوابة الموظفين</li><li>حل المشكلات الشائعة</li>
   </ol>
 
   <h2>1. ماذا يفعل التطبيق</h2>
@@ -558,7 +669,7 @@ SEED_LOCALE=fr</pre>
   <pre>pnpm --filter @leave/server db:create
 pnpm --filter @leave/server db:migrate
 pnpm --filter @leave/server db:seed</pre>
-  <p>الأمر <code class="ltr">⁦db:create⁩</code> ينشئ قاعدة البيانات <code class="ltr">⁦leave⁩</code>، و<code class="ltr">⁦db:migrate⁩</code> ينشئ الجداول، و<code class="ltr">⁦db:seed⁩</code> يضيف أنواع الإجازات الافتراضية وقائمة عطل مؤقتة وحساب الموارد البشرية المحدد في <code class="ltr">⁦.env⁩</code>. يمكن إعادة تنفيذ هذه الأوامر دون خطر.</p>
+  <p>الأمر <code class="ltr">⁦db:create⁩</code> ينشئ قاعدة البيانات <code class="ltr">⁦leave⁩</code>، و<code class="ltr">⁦db:migrate⁩</code> ينشئ الجداول، و<code class="ltr">⁦db:seed⁩</code> يضيف أنواع الإجازات الافتراضية والعطل الرسمية التونسية وقاعدة إجازة مدفوعة بـ 22 يومًا في السنة وحساب الموارد البشرية المحدد في <code class="ltr">⁦.env⁩</code>. يمكن إعادة تنفيذ هذه الأوامر دون خطر.</p>
   <h3>2.5 تشغيل التطبيق</h3>
   <pre>pnpm dev</pre>
   <p>انتظر ظهور السطرين <code class="ltr">⁦Leave app listening on http://localhost:3000⁩</code> و<code class="ltr">⁦Local: http://localhost:5173/⁩</code>، ثم افتح <b class="ltr">⁦http://localhost:5173⁩</b> في المتصفح. للإيقاف: <kbd>⁦Ctrl⁩</kbd>+<kbd>⁦C⁩</kbd> في الطرفية.</p>
@@ -596,15 +707,17 @@ pnpm --filter @leave/server db:seed</pre>
     <li>السماح بالرصيد السالب وحدّه بالأيام. إن كان معطّلًا تُمنع الإجازة التي تجعل الرصيد سالبًا.</li>
     <li>الحالة الافتراضية عند الحفظ: مقبولة (موصى به) أو معلّقة.</li>
     <li>اللغة والمنطقة: تحدد صيغ التواريخ والأرقام في ملفات التصدير والرسائل.</li>
+    <li>ظهور الفريق في البوابة <span class="ui" dir="ltr">⁦(Visibilité de l'équipe dans le portail)⁩</span>: ما يراه كل موظف من غيابات زملائه: <span class="ui" dir="ltr">⁦Son service⁩</span> (قسمه، افتراضي) أو <span class="ui" dir="ltr">⁦Toute l'entreprise⁩</span> (كل الشركة) أو <span class="ui" dir="ltr">⁦Désactivée⁩</span> (معطّل، ويختفي تبويب الفريق). انظر الفصل 14.</li>
     <li>الأقسام <span class="ui" dir="ltr">⁦(Services)⁩</span>: إضافة وإعادة تسمية وترتيب؛ ولا يُحذف القسم إلا إذا كان فارغًا.</li>
   </ul>
-  <div class="note"><b>تنبيه:</b> الإعداد المسبق للبلد مؤقت. يجب التحقق من العطل الرسمية ومعدل الاكتساب وفق قانون الشغل المعمول به لديكم.</div>
+  <div class="note"><b>تنبيه:</b> الإعداد المسبق للبلد هو <b>تونس</b>. الـ 22 يومًا من الإجازة المدفوعة في السنة قيمة افتراضية قابلة للتعديل، وليست قاعدة قانونية: تحقّق منها وفق مجلة الشغل والاتفاقية المشتركة المعمول بها لديكم.</div>
   <h3>5.2 أنواع الإجازات <span class="ui" dir="ltr">⁦(Types de congé)⁩</span></h3>
   <p>تُنشأ خمسة أنواع: إجازة مدفوعة، مرضية، بدون أجر، استثنائية، راحة تعويضية. لكل نوع: الاسم، اللون، مدفوع أم لا، هل يُخصم من الرصيد، أيام عمل أم أيام تقويمية، هل الوثيقة الداعمة إلزامية، السقف السنوي، الحالة الافتراضية. لا يُحذف أي نوع، بل يُعطَّل.</p>
   <h3>5.3 الاكتساب <span class="ui" dir="ltr">⁦(Acquisition)⁩</span></h3>
-  <p>لكل نوع يُخصم من الرصيد حدّد القاعدة: سنوي (منحة واحدة لكل سنة إجازات) أو شهري (مثلًا 2.5 يوم في الشهر)، وتفعيل التناسب في شهر التوظيف. عند الحفظ يسألك التطبيق: <span class="ui" dir="ltr">⁦À partir d'aujourd'hui⁩</span> (من اليوم) أو <span class="ui" dir="ltr">⁦Dès le début de l'année de congés⁩</span> (من بداية سنة الإجازات). ويُحتفظ بتاريخ القواعد.</p>
+  <p>لكل نوع يُخصم من الرصيد أدخل عدد الأيام في السنة <span class="ui" dir="ltr">⁦(Jours par année de congés)⁩</span>، مثلًا <b>22</b>، واختر الطريقة: <span class="ui" dir="ltr">⁦Annuel⁩</span> (سنوي: تُمنح الأيام الـ 22 دفعة واحدة في بداية سنة الإجازات) أو <span class="ui" dir="ltr">⁦Mensuel⁩</span> (شهري: تُكتسب شهرًا بشهر). فعّل <span class="ui" dir="ltr">⁦Proratiser le mois d'embauche⁩</span> حتى لا يكتسب من التحق في منتصف الشهر إلا أيام عمله. عند الحفظ يسألك التطبيق: <span class="ui" dir="ltr">⁦À partir d'aujourd'hui⁩</span> (من اليوم) أو <span class="ui" dir="ltr">⁦Dès le début de l'année de congés⁩</span> (من بداية سنة الإجازات). ويُحتفظ بتاريخ القواعد.</p>
+  <p>في الطريقة الشهرية، 22 يومًا في السنة تعادل نحو 1.83 يوم في الشهر (نحو 0.06 يوم عن كل يوم في شهر من 30 يومًا). ولأن الأرصدة تُحسب بأنصاف الأيام، تُضاف الأشهر هكذا: 2 ثم 1.5 ثم 2 ثم 2 ثم 1.5… ويكون مجموع السنة <b>22 بالضبط</b>: يُرحَّل باقي كل شهر إلى الشهر الموالي ولا يضيع شيء. وعمود <span class="ui" dir="ltr">⁦Droits annuels⁩</span> (الحقوق السنوية) لموظف ما يعوّض الـ 22 يومًا بالنسبة إليه وحده.</p>
   <h3>5.4 العطل الرسمية <span class="ui" dir="ltr">⁦(Jours fériés)⁩</span></h3>
-  <p>القائمة المرفقة مؤقتة (1 يناير و1 مايو): أضف عطلك الوطنية بزر <span class="ui" dir="ltr">⁦Ajouter un jour férié⁩</span>. الخيارات: نصف يوم، «تاريخ يُؤكَّد لاحقًا» للأعياد المتنقلة، ومصدر «إغلاق» لإغلاق الشركة.</p>
+  <p>العطل الرسمية التونسية مرفقة: 1 جانفي، 20 مارس (عيد الاستقلال)، 9 أفريل (عيد الشهداء)، 1 ماي (عيد الشغل)، 25 جويلية (عيد الجمهورية)، 13 أوت (عيد المرأة)، 15 أكتوبر (عيد الجلاء)، 17 ديسمبر (عيد الثورة). أما الأعياد الدينية (عيد الفطر، عيد الأضحى، رأس السنة الهجرية، المولد النبوي) فتتبع التقويم القمري: تواريخها تقديرية ومعلَّمة بـ <span class="ui" dir="ltr">⁦Date à confirmer⁩</span> (تاريخ يُؤكَّد لاحقًا). صحّحها فور الإعلان الرسمي. ويتيح زر <span class="ui" dir="ltr">⁦Ajouter un jour férié⁩</span> أيضًا إضافة نصف يوم أو يوم إغلاق للشركة <span class="ui" dir="ltr">⁦(Fermeture)⁩</span>.</p>
   <p>إذا مسّ التغيير إجازات مسجّلة، تظهر نافذة تعرضها مع العدد القديم والجديد للأيام. انقر <span class="ui" dir="ltr">⁦Recalculer ces congés⁩</span> لتصحيح الأيام والأرصدة، أو <span class="ui" dir="ltr">⁦Pas maintenant⁩</span> للتأجيل.</p>
 
   <h2>6. إضافة الموظفين</h2>
@@ -616,8 +729,8 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>بطاقة الموظف</b> (انقر على الاسم): بطاقات الأرصدة، وسجل الإجازات، و«سجل الأرصدة» <span class="ui" dir="ltr">⁦(Journal des soldes)⁩</span> لكل نوع مع الرصيد بعد كل قيد.</li>
     <li><b>الأرشفة</b> عند مغادرة الموظف: يختفي من المخطط لكنه يبقى في التصديرات السابقة، ويمكن استعادته بزر <span class="ui" dir="ltr">⁦Restaurer⁩</span>.</li>
   </ul>
-  <h3>الوصول إلى البوابة (تحضير للمرحلة 5)</h3>
-  <p>تتضمن قائمة كل سطر: <span class="ui" dir="ltr">⁦Envoyer l'invitation⁩</span> (رسالة برابط صالح 48 ساعة لاختيار كلمة المرور)، و<span class="ui" dir="ltr">⁦Mot de passe temporaire⁩</span> للموظف الذي لا بريد له (يظهر مرة واحدة، ويدخل الموظف برمزه ثم يغيّرها إلزاميًا)، وتفعيل أو تعطيل الوصول، و<span class="ui" dir="ltr">⁦Déconnecter partout⁩</span> (الخروج من كل الأجهزة).</p>
+  <h3>الوصول إلى البوابة</h3>
+  <p>تتضمن قائمة كل سطر: <span class="ui" dir="ltr">⁦Envoyer l'invitation⁩</span> (رسالة برابط صالح 48 ساعة لاختيار كلمة المرور)، و<span class="ui" dir="ltr">⁦Mot de passe temporaire⁩</span> للموظف الذي لا بريد له (يظهر مرة واحدة، ويدخل الموظف برمزه ثم يغيّرها إلزاميًا)، وتفعيل أو تعطيل الوصول، و<span class="ui" dir="ltr">⁦Déconnecter partout⁩</span> (الخروج من كل الأجهزة). أرشفة الموظف أو تعطيل وصوله يُخرجه فورًا من كل أجهزته. طريقة استعمال البوابة: الفصل 14.</p>
 
   <h2>7. منح الأيام: الاكتساب والأرصدة</h2>
   <p>يبدأ الموظف الجديد برصيد 0. توجد طريقتان لمنحه أيامًا:</p>
@@ -625,7 +738,8 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>الاكتساب الشهري:</b> <span class="ui" dir="ltr">⁦Paramètres → Acquisition → Lancer l'acquisition⁩</span>. اختر الشهر وانقر <span class="ui" dir="ltr">⁦Aperçu⁩</span> (معاينة الموظفين والأنواع والأيام)، ثم زر التشغيل وأكّد. كرّر ذلك في بداية كل شهر. إعادة تشغيل الشهر نفسه لا تضيف شيئًا، إذ تُتجاهل الأسطر المنجزة سابقًا.</li>
     <li><b>التعديل اليدوي:</b> بطاقة الموظف ← <span class="ui" dir="ltr">⁦Ajuster le solde⁩</span>: النوع، الأيام (+ أو −، بأنصاف الأيام)، تاريخ السريان، ملاحظة إلزامية ← <span class="ui" dir="ltr">⁦Appliquer l'ajustement⁩</span>.</li>
   </ol>
-  <p class="muted">المبالغ المتناسبة (التوظيف أو المغادرة في منتصف الشهر) تُقرَّب إلى أقرب نصف يوم.</p>
+  <p class="muted">التقريب: يُقرَّب مجموع ما اكتُسب منذ بداية سنة الإجازات إلى أقرب نصف يوم، ويُضاف لكل شهر الفرق. مثال: موظف التحق يوم 16 نوفمبر (شهر من 30 يومًا) يكتسب 15 × 0.06 ≈ 0.92 يوم، فيُضاف له يوم واحد في نوفمبر ثم يومان في ديسمبر.</p>
+  <div class="warn"><b>عند التحديث من نسخة سابقة:</b> أصبحت القاعدة تُدخَل بعدد الأيام <b>في السنة</b>. افتح <span class="ui" dir="ltr">⁦Paramètres → Acquisition⁩</span> وأدخل 22 واحفظ واختر <span class="ui" dir="ltr">⁦Dès le début de l'année de congés⁩</span>. الأشهر التي أُضيفت سابقًا بالمعدل القديم لا تتغير: صحّح الفرق بتعديل يدوي عند الحاجة.</div>
 
   <h2>8. تسجيل إجازة في 10 ثوانٍ</h2>
   <p>افتح النموذج بالمفتاح <kbd>⁦C⁩</kbd>، أو بالزر <span class="ui" dir="ltr">⁦+ Saisir un congé⁩</span>، أو بالنقر على خانة فارغة في المخطط (يُملأ الموظف والتاريخ تلقائيًا).</p>
@@ -638,6 +752,7 @@ pnpm --filter @leave/server db:seed</pre>
     <li><b>الحفظ:</b> <kbd>⁦Ctrl⁩</kbd>+<kbd>⁦Enter⁩</kbd> (بالحالة الافتراضية) أو <kbd>⁦Shift⁩</kbd>+<kbd>⁦Ctrl⁩</kbd>+<kbd>⁦Enter⁩</kbd> (معلّقة). ويبقى زر التراجع 6 ثوانٍ.</li>
   </ol>
   <p>اختياريًا: ملاحظة، ومرفق (اسحب أو الصق أو اختر ملف PDF أو JPG أو PNG بحجم أقصاه 10 ميغابايت). تشير علامة مشبك الورق إلى وثيقة إلزامية ناقصة.</p>
+  <p class="muted">إذا غادرت النموذج وفيه تغييرات غير محفوظة (مفتاح <kbd>⁦Esc⁩</kbd>، أو زر الرجوع في المتصفح، أو رابط في القائمة)، يطلب التطبيق تأكيدًا قبل التخلي عنها.</p>
   <h3>شريط التعارضات</h3>
   <table>
     <tr><th>الفحص</th><th>الأثر</th></tr>
@@ -705,7 +820,56 @@ pnpm --filter @leave/server db:seed</pre>
     <li>عند تسجيل إجازة يأخذ الفحص بعين الاعتبار الإجازات المقبولة لاحقًا في السنة حتى لا تُصرف الأيام نفسها مرتين، لذا قد تكون المعاينة أقل من الرقم الظاهر في جدول الموظفين.</li>
   </ul>
 
-  <h2>14. حل المشكلات الشائعة</h2>
+  <h2>14. بوابة الموظفين</h2>
+  <p>لكل موظف فضاؤه الخاص، المصمَّم للهاتف: يطّلع فيه على أرصدته ويطلب إجازة في 15 ثانية. لا يرى إلا بياناته، ولا يرى من زملائه إلا من هو غائب ومتى.</p>
+  <h3>14.1 منح الوصول (جهة الموارد البشرية)</h3>
+  <ol>
+    <li>القائمة <span class="ui" dir="ltr">⁦Salariés⁩</span>، ثم قائمة سطر الموظف.</li>
+    <li>موظف له بريد إلكتروني: <span class="ui" dir="ltr">⁦Envoyer l'invitation⁩</span>. يتلقى رابطًا صالحًا 48 ساعة، فيختار كلمة مروره ويدخل فضاءه.</li>
+    <li>موظف بلا بريد: <span class="ui" dir="ltr">⁦Mot de passe temporaire⁩</span>. دوّن معرّف الدخول (رمز الموظف) وكلمة المرور، فهما يظهران مرة واحدة فقط، وسلّمهما له. وعليه اختيار كلمة مروره الخاصة عند أول دخول.</li>
+  </ol>
+  <p>عنوان البوابة: <b class="ltr">⁦http://localhost:5173/me⁩</b> محليًا، أو <code class="ltr">⁦https://votre-domaine/me⁩</code> بعد النشر على الإنترنت. وعلى الحاسوب تظهر في عمود وسط الشاشة.</p>
+  <h3>14.2 تسجيل الدخول (جهة الموظف)</h3>
+  <ul>
+    <li>صفحة <span class="ui" dir="ltr">⁦Mon espace congés⁩</span>: البريد أو رمز الموظف <span class="ui" dir="ltr">⁦(E-mail ou code salarié)⁩</span>، ثم كلمة المرور، ثم <span class="ui" dir="ltr">⁦Se connecter⁩</span>. القواعد نفسها كما لدى الموارد البشرية: 8 أحرف على الأقل، وقفل 15 دقيقة بعد 5 أخطاء، و<span class="ui" dir="ltr">⁦Rester connecté⁩</span> لمدة 30 يومًا.</li>
+    <li>نسيان كلمة المرور: زر <span class="ui" dir="ltr">⁦Mot de passe oublié ?⁩</span> إن كان للموظف بريد، وإلا فيطلب كلمة مرور مؤقتة جديدة من الموارد البشرية.</li>
+    <li>رمز الترس أعلى الشاشة يفتح <span class="ui" dir="ltr">⁦Réglages⁩</span> (الإعدادات): اللغة، وتغيير كلمة المرور، والخروج.</li>
+  </ul>
+  <h3>14.3 التبويبات الثلاثة</h3>
+  <table>
+    <tr><th>التبويب</th><th>المحتوى</th></tr>
+    <tr><td><span class="ui" dir="ltr">⁦Accueil⁩</span> (الرئيسية)</td><td><span class="ui" dir="ltr">⁦Vos soldes⁩</span> (أرصدتك): بطاقة لكل نوع، يظهر فيها المتاح بخط كبير وتحته «المأخوذ · المعلّق»، ولمس البطاقة يعرض تاريخ الرصيد. ثم آخر قرار للموارد البشرية، والطلبات المعلّقة، والإجازات القادمة، والعطل الرسمية القادمة.</td></tr>
+    <tr><td><span class="ui" dir="ltr">⁦Mes congés⁩</span> (إجازاتي)</td><td>السجل الكامل مرتّبًا حسب السنة، مع سبب الرفض إن وُجد. وتظهر العلامتان <span class="ui" dir="ltr">⁦Ajouté par les RH⁩</span> و<span class="ui" dir="ltr">⁦Modifié par les RH⁩</span> عندما تكون الموارد البشرية قد سجّلت الإجازة أو عدّلتها.</td></tr>
+    <tr><td><span class="ui" dir="ltr">⁦Équipe⁩</span> (الفريق)</td><td>من هو غائب هذا الأسبوع والأسبوع القادم (من القسم أو من كل الشركة حسب الإعداد). الاسم والتواريخ فقط، ولا يظهر أبدًا نوع الإجازة ولا الملاحظة ولا الوثيقة.</td></tr>
+  </table>
+  <h3>14.4 طلب إجازة</h3>
+  <ol>
+    <li>زر <span class="ui" dir="ltr">⁦Demander un congé⁩</span>.</li>
+    <li>اختر النوع، ثم المس اليوم الأول واليوم الأخير في التقويم، مع اختيار الصباح أو بعد الظهر عند الحاجة.</li>
+    <li>تحقّق من عدد الأيام، والرصيد بعد الطلب، وسطر الزملاء الغائبين.</li>
+    <li>اختياريًا: <span class="ui" dir="ltr">⁦Ajouter une note⁩</span> (ملاحظة) و<span class="ui" dir="ltr">⁦Ajouter un document ou une photo⁩</span> (وثيقة أو صورة، وتعمل كاميرا الهاتف).</li>
+    <li><span class="ui" dir="ltr">⁦Envoyer la demande⁩</span>. ويبقى شريط <span class="ui" dir="ltr">⁦Annuler⁩</span> (تراجع) ظاهرًا 6 ثوانٍ.</li>
+  </ol>
+  <table>
+    <tr><th>الحالة</th><th>ما يحدث</th></tr>
+    <tr><td>تداخل مع إجازة أخرى له، أو لا أيام عمل، أو خارج فترة العقد</td><td><b style="color:var(--bad)">ممنوع</b> مع ذكر السبب</td></tr>
+    <tr><td>تجاوز الرصيد المتاح</td><td>ممنوع إن كان الرصيد السالب غير مسموح، وإلا فعليه تأكيد خانة «أفهم أن هذا يجعل رصيدي أقل من الصفر»</td></tr>
+    <tr><td>إجازة مرضية بدون شهادة</td><td>مقبولة، مع تنبيه «الشهادة منتظرة: يمكنك إرسالها لاحقًا»</td></tr>
+    <tr><td>نوع آخر يشترط وثيقة، بدون وثيقة</td><td><b style="color:var(--bad)">ممنوع</b></td></tr>
+    <tr><td>زملاء غائبون</td><td>معلومة فقط</td></tr>
+    <tr><td>لا يوجد اتصال</td><td>يُحفظ الطلب (ووثيقته) على الهاتف ويظهر «جارٍ الإرسال…»، ويُرسَل تلقائيًا عند عودة الشبكة</td></tr>
+  </table>
+  <h3>14.5 سحب طلب</h3>
+  <p>ما دام الطلب <span class="pill p-pending">معلّقًا</span> يمكن سحبه بزر <span class="ui" dir="ltr">⁦Retirer⁩</span> دون تأكيد، ويعيده زر <span class="ui" dir="ltr">⁦Annuler⁩</span> إلى الانتظار خلال 6 ثوانٍ. وإذا كانت الموارد البشرية قد قرّرت مسبقًا، يُرفض السحب. أما الإجازة المقبولة فلا تُعدَّل من البوابة: يجب الاتصال بالموارد البشرية.</p>
+  <h3>14.6 المزامنة الفورية</h3>
+  <ul>
+    <li>يظهر الطلب المرسَل لدى الموارد البشرية في نحو ثانيتين: يزيد رقم الطلبات المعلّقة، ويظهر شريط مخطّط، ويحمل الطلب علامة <span class="ui" dir="ltr">⁦Via le portail⁩</span> (عبر البوابة).</li>
+    <li>عندما تقبل الموارد البشرية الطلب أو ترفضه، تتحدّث شاشة الموظف تلقائيًا بما في ذلك الرصيد. ويُرسَل أيضًا بريد لا يتضمن إلا التواريخ والقرار؛ أما النوع والسبب فلا يظهران إلا بعد تسجيل الدخول.</li>
+    <li>إذا انقطع الاتصال الفوري، تتحدّث الشاشات مع ذلك كل 30 ثانية.</li>
+  </ul>
+  <div class="tip"><b>هاتف مشترك:</b> الخروج من الحساب يمسح من الهاتف الطلبات التي تنتظر الإرسال. وإذا دخل شخص آخر من الجهاز نفسه، فلن يرى أبدًا طلبات الموظف السابق ولن يرسلها.</div>
+
+  <h2>15. حل المشكلات الشائعة</h2>
   <table>
     <tr><th>العَرَض</th><th>الحل</th></tr>
     <tr><td>رسالة <span class="ui" dir="ltr">⁦API injoignable⁩</span> أو صفحة بيضاء</td><td>تأكد أن <code class="ltr">⁦pnpm dev⁩</code> يعمل ويُظهر سطري التشغيل.</td></tr>
@@ -715,6 +879,9 @@ pnpm --filter @leave/server db:seed</pre>
     <tr><td>كل الأرصدة صفر</td><td>شغّل اكتساب الشهر أو قم بتعديل يدوي.</td></tr>
     <tr><td>الرسائل لا تصل</td><td>بدون إعدادات SMTP تظهر الرسائل في طرفية <code class="ltr">⁦pnpm dev⁩</code>. للإرسال الفعلي املأ <code class="ltr">⁦SMTP_HOST⁩</code> و<code class="ltr">⁦SMTP_USER⁩</code> و<code class="ltr">⁦SMTP_PASSWORD⁩</code> و<code class="ltr">⁦MAIL_FROM⁩</code> (خدمة Brevo).</td></tr>
     <tr><td>عطلة مضافة لم تغيّر إجازة</td><td>أعد فتح العطلة وانقر <span class="ui" dir="ltr">⁦Recalculer ces congés⁩</span>.</td></tr>
+    <tr><td>موظف لا يستطيع الدخول إلى البوابة</td><td>تأكّد أن وصوله مفعّل (قائمة سطره). إن انتهت صلاحية رابط الدعوة (48 ساعة) فأعد إرسالها، وإن لم يكن له بريد فامنحه كلمة مرور مؤقتة جديدة.</td></tr>
+    <tr><td>الموظف لا يرى تبويب الفريق</td><td>إعداد <span class="ui" dir="ltr">⁦Visibilité de l'équipe dans le portail⁩</span> على <span class="ui" dir="ltr">⁦Désactivée⁩</span>.</td></tr>
+    <tr><td>طلب يبقى على «جارٍ الإرسال…»</td><td>الهاتف غير متصل، وسيُرسَل الطلب عند عودة الشبكة. زر <span class="ui" dir="ltr">⁦Annuler cette demande⁩</span> يحذفه.</td></tr>
   </table>
 </section>
 
