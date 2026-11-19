@@ -33,9 +33,9 @@ export function TopBar({ workspace }: { workspace: boolean }) {
   };
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-3 md:px-4">
       <div className="relative min-w-0 flex-1 md:max-w-[14rem] xl:max-w-sm">
-        <Search size={14} className="pointer-events-none absolute start-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+        <Search size={15} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <input
           ref={searchRef}
           type="search"
@@ -49,9 +49,9 @@ export function TopBar({ workspace }: { workspace: boolean }) {
           }}
           aria-label={t("topbar.search")}
           placeholder={t("topbar.search")}
-          className="h-8 w-full rounded-md border bg-muted/40 ps-8 pe-8 placeholder:text-muted-foreground focus:bg-background max-md:h-11"
+          className="h-9 w-full rounded-lg border border-transparent bg-muted ps-9 pe-8 transition-colors placeholder:text-muted-foreground hover:border-border focus:border-accent focus:bg-background focus:outline-none focus:ring-2 focus:ring-accent/20 max-md:h-11"
         />
-        <kbd className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 rounded border bg-background px-1 text-meta text-muted-foreground max-md:hidden">/</kbd>
+        <kbd className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 rounded border bg-background px-1.5 text-meta text-muted-foreground max-md:hidden">/</kbd>
       </div>
       {workspace ? (
         <>
@@ -65,7 +65,10 @@ export function TopBar({ workspace }: { workspace: boolean }) {
             aria-pressed={whosOutOpen}
             aria-label={t("whosOut.toggle")}
             title={t("whosOut.toggle")}
-            className={cn("grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-muted max-md:hidden", whosOutOpen && "bg-muted text-foreground")}
+            className={cn(
+              "grid h-9 w-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent max-md:hidden",
+              whosOutOpen && "bg-accent-soft text-accent hover:bg-accent-soft hover:text-accent",
+            )}
           >
             <UsersRound size={16} aria-hidden="true" />
           </button>
@@ -76,36 +79,37 @@ export function TopBar({ workspace }: { workspace: boolean }) {
         onClick={exportMonth}
         title={exportLabel}
         aria-label={exportLabel}
-        className="inline-flex h-8 items-center gap-1.5 rounded-md border px-3 hover:bg-muted max-md:hidden"
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg border bg-background px-3 font-medium shadow-card transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-accent max-md:hidden"
       >
-        <Download size={14} aria-hidden="true" />
+        <Download size={15} aria-hidden="true" className="text-muted-foreground" />
         {t("topbar.export")}
       </button>
       <button
         type="button"
         onClick={() => nav.open("/leave/new")}
-        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-accent px-3 font-medium text-accent-foreground max-md:hidden"
+        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-accent px-3.5 font-medium text-accent-foreground shadow-card transition-colors hover:bg-accent/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent max-md:hidden"
       >
-        <Plus size={14} aria-hidden="true" />
+        <Plus size={15} aria-hidden="true" />
         {t("topbar.logLeave")}
-        <kbd className="ms-1 rounded bg-white/20 px-1 text-meta">C</kbd>
+        <kbd className="ms-1 rounded bg-white/20 px-1.5 text-meta">C</kbd>
       </button>
+      <div className="mx-1 h-6 w-px bg-border max-md:hidden" aria-hidden="true" />
       <button
         type="button"
         onClick={() => setLanguage(lang === "fr" ? "en" : "fr")}
         aria-label={t("topbar.switchLanguage")}
-        className="h-8 rounded-md px-2 text-meta font-medium text-muted-foreground hover:bg-muted max-md:h-11"
+        className="h-9 rounded-lg px-2.5 text-meta font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground max-md:h-11"
       >
         {lang === "fr" ? "EN" : "FR"}
       </button>
-      <span className="hidden text-meta text-muted-foreground lg:inline">{session.data?.name}</span>
+      <span className="hidden max-w-[10rem] truncate text-meta font-medium text-muted-foreground lg:inline">{session.data?.name}</span>
       <button
         type="button"
         onClick={() => signOut.mutate(undefined, { onSettled: () => navigate("/login") })}
         disabled={signOut.isPending}
         aria-label={t("auth.signOut")}
         title={t("auth.signOut")}
-        className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-muted max-md:h-11 max-md:w-11"
+        className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground max-md:h-11 max-md:w-11"
       >
         <LogOut size={16} aria-hidden="true" />
       </button>

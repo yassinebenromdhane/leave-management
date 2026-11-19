@@ -17,8 +17,13 @@ export function WhosOutPanel({ leaves, ctx, onOpenLeave, className }: { leaves: 
   const lines = whosOut(leaves, tab, ctx);
   return (
     <aside aria-label={t("whosOut.title")} className={cn("flex min-h-0 flex-col bg-background", className)}>
-      <h2 className="px-3 pt-3 text-table font-semibold">{t("whosOut.title")}</h2>
-      <div role="tablist" aria-label={t("whosOut.title")} className="flex gap-1 border-b px-2 pt-2">
+      <div className="flex items-center gap-2 px-4 pt-4">
+        <h2 className="text-table font-semibold">{t("whosOut.title")}</h2>
+        <span aria-hidden="true" className="rounded-full bg-muted px-2 text-meta font-semibold leading-5 tabular-nums text-muted-foreground">
+          {lines.length}
+        </span>
+      </div>
+      <div role="tablist" aria-label={t("whosOut.title")} className="mx-3 mt-3 flex gap-0.5 rounded-lg bg-muted p-0.5">
         {WHOS_OUT_TABS.map((k) => (
           <button
             key={k}
@@ -28,18 +33,21 @@ export function WhosOutPanel({ leaves, ctx, onOpenLeave, className }: { leaves: 
             aria-selected={tab === k}
             aria-controls="whosout-panel"
             onClick={() => setTab(k)}
-            className={cn("h-8 rounded-t-md border-b-2 border-transparent px-2.5 text-meta text-muted-foreground hover:text-foreground", tab === k && "border-accent font-medium text-foreground")}
+            className={cn(
+              "h-7 flex-1 truncate rounded-md px-2 text-meta font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent",
+              tab === k && "bg-background text-foreground shadow-card",
+            )}
           >
             {t(`whosOut.tab.${k}`)}
           </button>
         ))}
       </div>
-      <ul id="whosout-panel" role="tabpanel" aria-labelledby={`whosout-tab-${tab}`} className="min-h-0 flex-1 overflow-auto p-2">
-        {lines.length === 0 ? <li className="px-1 py-6 text-center text-meta text-muted-foreground">{t("whosOut.none")}</li> : null}
+      <ul id="whosout-panel" role="tabpanel" aria-labelledby={`whosout-tab-${tab}`} className="min-h-0 flex-1 space-y-0.5 overflow-auto p-2 pt-3">
+        {lines.length === 0 ? <li className="px-1 py-8 text-center text-meta text-muted-foreground">{t("whosOut.none")}</li> : null}
         {lines.map(({ leave, back }) => (
           <li key={leave.id}>
-            <button type="button" onClick={() => onOpenLeave(leave.id)} className="flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-start hover:bg-muted/60 focus-visible:outline-2 focus-visible:outline-accent">
-              <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+            <button type="button" onClick={() => onOpenLeave(leave.id)} className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-start transition-colors hover:bg-muted/70 focus-visible:outline-2 focus-visible:outline-accent">
+              <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent-soft text-[11px] font-semibold text-accent">
                 {initials(leave.employeeName)}
               </span>
               <span className="min-w-0 flex-1">

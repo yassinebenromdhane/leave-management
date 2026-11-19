@@ -73,20 +73,22 @@ export function Timeline({ groups, columns, from, to, zoom, loading, onOpenLeave
   const cells = (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
       {columns.map((c) => (
-        <div key={c.date} className={cn("border-s first:border-s-0", c.shaded && "bg-muted/70")} />
+        <div key={c.date} className={cn("border-s border-border/70 first:border-s-0", c.shaded && "bg-muted/70", c.isToday && "bg-accent-soft/70")} />
       ))}
     </div>
   );
   const todayLine =
     todayIndex >= 0 ? (
-      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-[5] w-px bg-accent" style={{ insetInlineStart: `${((todayIndex + 0.5) / n) * 100}%` }} />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-[5] w-0.5 -translate-x-1/2 rounded-full bg-accent/70 rtl:translate-x-1/2" style={{ insetInlineStart: `${((todayIndex + 0.5) / n) * 100}%` }} />
     ) : null;
 
   return (
-    <div ref={scrollRef} className="h-full min-h-0 overflow-auto" role="region" aria-label={t("timeline.label")} tabIndex={-1}>
+    // `isolate`: the sticky header / name column z-indexes stay inside this scroll box, so they can
+    // never paint over the rail or drawers (index.css z-index scale).
+    <div ref={scrollRef} className="isolate h-full min-h-0 overflow-auto" role="region" aria-label={t("timeline.label")} tabIndex={-1}>
       {/* sticky date header */}
       <div className="sticky top-0 z-20 flex border-b bg-background" style={rowStyle}>
-        <div className="sticky start-0 z-30 flex h-11 shrink-0 items-end border-e bg-background px-3 pb-1 text-meta font-medium text-muted-foreground" style={{ width: NAME_COL }}>
+        <div className="sticky start-0 z-30 flex h-12 shrink-0 items-end border-e bg-background px-3 pb-1.5 text-meta font-semibold uppercase tracking-wide text-muted-foreground" style={{ width: NAME_COL }}>
           {t("workspace.col.employee")}
         </div>
         <div className="grid flex-1" style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
@@ -95,14 +97,18 @@ export function Timeline({ groups, columns, from, to, zoom, loading, onOpenLeave
               key={c.date}
               title={c.holiday ?? undefined}
               data-today={c.isToday || undefined}
-              className={cn("flex h-11 flex-col items-center justify-center border-s text-meta leading-tight tabular-nums first:border-s-0", c.shaded && "bg-muted/70", c.isToday && "font-semibold text-accent")}
+              className={cn(
+                "flex h-12 flex-col items-center justify-center gap-0.5 border-s border-border/70 text-meta leading-tight tabular-nums first:border-s-0",
+                c.shaded && "bg-muted/70",
+                c.isToday && "bg-accent-soft/70 font-semibold text-accent",
+              )}
             >
               {zoom === "week" ? (
-                <span className="capitalize">{formatDay(c.date, locale, { weekday: "short", day: "numeric" })}</span>
+                <span className={cn("capitalize", c.isToday && "rounded-full bg-accent px-2 py-0.5 text-accent-foreground")}>{formatDay(c.date, locale, { weekday: "short", day: "numeric" })}</span>
               ) : (
                 <>
-                  <span className="capitalize text-muted-foreground">{weekdayInitial(c.date, locale)}</span>
-                  <span>{Number(c.date.slice(8, 10))}</span>
+                  <span className={cn("capitalize", c.isToday ? "text-accent" : "text-muted-foreground")}>{weekdayInitial(c.date, locale)}</span>
+                  <span className={cn(c.isToday && "grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-accent-foreground")}>{Number(c.date.slice(8, 10))}</span>
                 </>
               )}
             </div>
@@ -130,8 +136,8 @@ export function Timeline({ groups, columns, from, to, zoom, loading, onOpenLeave
           const deptLeaves = g.rows.flatMap((r) => r.leaves).filter((l) => l.status === "approved" || l.status === "pending");
           return (
             <div key={g.departmentId} role="rowgroup">
-              <div className="flex border-b bg-muted/40" style={{ ...rowStyle, height: 28 }}>
-                <div className="sticky start-0 z-10 shrink-0 border-e bg-muted/40" style={{ width: NAME_COL }}>
+              <div className="flex border-b bg-slate-50" style={{ ...rowStyle, height: 28 }}>
+                <div className="sticky start-0 z-10 shrink-0 border-e bg-slate-50" style={{ width: NAME_COL }}>
                   <button
                     type="button"
                     onClick={() => toggle(g.departmentId)}
@@ -147,9 +153,9 @@ export function Timeline({ groups, columns, from, to, zoom, loading, onOpenLeave
                   {columns.map((c) => {
                     const off = offCount(c.date, deptLeaves);
                     return (
-                      <div key={c.date} className={cn("flex items-center justify-center border-s text-meta tabular-nums first:border-s-0", c.shaded && "bg-muted/70")} title={off ? t("timeline.off", { count: off }) : undefined}>
+                      <div key={c.date} className={cn("flex items-center justify-center border-s border-border/70 text-meta tabular-nums first:border-s-0", c.shaded && "bg-muted/70")} title={off ? t("timeline.off", { count: off }) : undefined}>
                         {off > 0 ? (
-                          <span aria-label={t("timeline.off", { count: off })} className="font-medium">
+                          <span aria-label={t("timeline.off", { count: off })} className="rounded-full bg-amber-50 px-1.5 text-[11px] font-semibold leading-4 text-amber-800 ring-1 ring-amber-200">
                             {zoom === "week" ? t("timeline.off", { count: off }) : off}
                           </span>
                         ) : null}
@@ -168,9 +174,9 @@ export function Timeline({ groups, columns, from, to, zoom, loading, onOpenLeave
                           type="button"
                           onClick={() => onCreate(employee.id, defaultDate)}
                           aria-label={t("timeline.logFor", { name: employee.fullName })}
-                          className="flex h-full w-full items-center gap-2 px-3 text-start hover:bg-muted/50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+                          className="flex h-full w-full items-center gap-2 px-3 text-start font-medium transition-colors hover:bg-muted/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
                         >
-                          <span aria-hidden="true" className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                          <span aria-hidden="true" className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent-soft text-[10px] font-semibold text-accent">
                             {initials(employee.fullName)}
                           </span>
                           <span className="truncate">{employee.fullName}</span>
@@ -207,9 +213,9 @@ export function Timeline({ groups, columns, from, to, zoom, loading, onOpenLeave
                               data-width={geo.width}
                               style={{ ...barStyle(l.color, l.status), insetInlineStart: `${(geo.left / n) * 100}%`, width: `${(geo.width / n) * 100}%` }}
                               className={cn(
-                                "absolute top-1 z-[6] flex h-6 items-center gap-1 overflow-hidden border px-1.5 text-meta focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
-                                geo.clippedStart ? "rounded-s-none border-s-0" : "rounded-s",
-                                geo.clippedEnd ? "rounded-e-none border-e-0" : "rounded-e",
+                                "absolute top-1 z-[6] flex h-6 cursor-pointer items-center gap-1 overflow-hidden border px-2 text-meta font-medium shadow-[0_1px_1px_rgb(15_23_42/0.06)] transition-[filter] hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
+                                geo.clippedStart ? "rounded-s-none border-s-0" : "rounded-s-md",
+                                geo.clippedEnd ? "rounded-e-none border-e-0" : "rounded-e-md",
                                 (l.status === "rejected" || l.status === "cancelled") && "line-through",
                               )}
                             >

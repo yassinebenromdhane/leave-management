@@ -22,7 +22,7 @@ export function Segmented<T extends string>({
   className?: string;
 }) {
   return (
-    <div role="group" aria-label={label} className={cn("inline-flex rounded-md border p-0.5", className)}>
+    <div role="group" aria-label={label} className={cn("inline-flex h-9 items-center rounded-lg bg-muted p-0.5 max-md:h-11", className)}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -30,8 +30,8 @@ export function Segmented<T extends string>({
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "inline-flex h-7 items-center gap-1 rounded px-2.5 text-meta text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent max-md:h-9",
-            value === o.value && "bg-muted font-medium text-foreground",
+            "inline-flex h-8 items-center gap-1 rounded-md px-3 text-meta font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent max-md:h-10",
+            value === o.value && "bg-background text-foreground shadow-card",
           )}
         >
           {o.label}
@@ -69,13 +69,13 @@ export function periodLabel(period: { from: string; to: string }, zoom: Zoom, lo
 export function PeriodNav({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
   const { period, zoom, shift, goToday } = useOperatorUi();
-  const icon = "grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-muted max-md:h-11 max-md:w-11";
+  const icon = "grid h-9 w-9 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-accent max-md:h-11 max-md:w-11";
   return (
     <div className={cn("flex items-center gap-1", className)}>
       <button type="button" onClick={() => shift(-1)} aria-label={t("period.previous")} className={icon}>
         <ChevronLeft size={16} aria-hidden="true" className="rtl:rotate-180" />
       </button>
-      <button type="button" onClick={goToday} className="inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-meta font-medium hover:bg-muted max-md:h-11">
+      <button type="button" onClick={goToday} className="inline-flex h-9 items-center gap-1.5 rounded-lg border bg-background px-3 text-meta font-medium shadow-card transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-accent max-md:h-11">
         {t("period.today")}
         <kbd className="text-[10px] text-muted-foreground max-md:hidden">T</kbd>
       </button>
@@ -89,7 +89,8 @@ export function PeriodNav({ className }: { className?: string }) {
   );
 }
 
-const selectClass = "h-8 max-w-[11rem] rounded-md border bg-background px-2 text-meta max-md:h-11 max-md:max-w-none";
+const selectClass =
+  "h-9 max-w-[11rem] cursor-pointer rounded-lg border bg-background px-2.5 text-meta font-medium shadow-card transition-colors hover:border-slate-300 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 max-md:h-11 max-md:max-w-none";
 
 export function DepartmentSelect({ className }: { className?: string }) {
   const { t } = useTranslation();

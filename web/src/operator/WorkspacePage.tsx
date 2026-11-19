@@ -69,9 +69,9 @@ export default function WorkspacePage() {
   const whosOut = <WhosOutPanel leaves={data.scoped} ctx={data.ctx} onOpenLeave={openLeave} />;
 
   return (
-    <section className="relative flex h-full min-h-0 flex-col" aria-label={t("nav.workspace")}>
+    <section className="relative flex h-full min-h-0 flex-col bg-canvas" aria-label={t("nav.workspace")}>
       <KpiRow kpis={data.kpis} active={filters.kpi} onToggle={(k) => updateFilters((f) => toggleKpi(f, k))} loading={data.loading} />
-      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b px-3 py-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 px-3 py-3 md:px-4">
         <Segmented<WorkspaceView>
           value={view}
           onChange={setView}
@@ -89,17 +89,18 @@ export default function WorkspacePage() {
         </div>
         <ZoomSwitch className="md:hidden" />
         {filtered ? (
-          <button type="button" onClick={clearFilters} className="h-8 rounded-md px-2 text-meta text-accent hover:bg-muted max-md:h-11">
+          <button type="button" onClick={clearFilters} className="h-9 rounded-lg px-2.5 text-meta font-medium text-accent transition-colors hover:bg-accent-soft max-md:h-11">
             {t("filters.clear")}
           </button>
         ) : null}
       </div>
-      <div className="flex min-h-0 flex-1">
+      {/* One white card holds the grid and the Who's out panel; the canvas shows around it. */}
+      <div className="mx-0 mb-0 flex min-h-0 flex-1 overflow-hidden border-t bg-background md:mx-4 md:mb-4 md:rounded-xl md:border md:shadow-card">
         <div className="min-w-0 flex-1">{body}</div>
         {wide && panelOpen ? <div className="w-[280px] shrink-0 border-s">{whosOut}</div> : null}
       </div>
       {!wide && !mobile && overlayOpen ? (
-        <div className="absolute end-2 top-2 z-30 flex max-h-[70%] w-[300px] flex-col rounded-md border shadow-overlay">{whosOut}</div>
+        <div className="absolute end-4 top-3 z-30 flex max-h-[70%] w-[300px] flex-col overflow-hidden rounded-xl border bg-background shadow-overlay">{whosOut}</div>
       ) : null}
     </section>
   );

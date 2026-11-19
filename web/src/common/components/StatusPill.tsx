@@ -11,6 +11,14 @@ const DOT: Record<LeaveStatus, string> = {
   cancelled: "bg-status-cancelled",
 };
 
+/** Soft tinted pill per status; the text label stays the primary cue (AA contrast on the tint). */
+const TINT: Record<LeaveStatus, string> = {
+  pending: "border-amber-200 bg-amber-50 text-amber-800",
+  approved: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  rejected: "border-red-200 bg-red-50 text-red-700",
+  cancelled: "border-slate-200 bg-slate-50 text-slate-600",
+};
+
 /** Status = dot + text label, never colour alone. Becomes a button when `onClick` is given. */
 export const StatusPill = forwardRef<
   HTMLButtonElement,
@@ -23,7 +31,7 @@ export const StatusPill = forwardRef<
       <span>{t(`status.${status}`)}</span>
     </>
   );
-  const base = "inline-flex h-5 items-center gap-1.5 rounded-full border bg-background px-2 text-meta whitespace-nowrap";
+  const base = cn("inline-flex h-5 items-center gap-1.5 rounded-full border px-2 text-meta font-medium whitespace-nowrap", TINT[status]);
   if (!onClick) return <span className={cn(base, className)}>{body}</span>;
   return (
     <button
@@ -33,10 +41,10 @@ export const StatusPill = forwardRef<
       disabled={disabled}
       aria-haspopup="menu"
       aria-label={t("status.change", { status: t(`status.${status}`) })}
-      className={cn(base, "cursor-pointer hover:bg-muted max-md:h-8", className)}
+      className={cn(base, "cursor-pointer transition-[filter] hover:brightness-95 max-md:h-8", className)}
     >
       {body}
-      <ChevronDown size={11} aria-hidden="true" className="text-muted-foreground" />
+      <ChevronDown size={11} aria-hidden="true" className="opacity-60" />
     </button>
   );
 });
